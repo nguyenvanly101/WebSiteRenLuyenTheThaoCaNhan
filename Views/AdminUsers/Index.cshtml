@@ -1,0 +1,53 @@
+@model IEnumerable<AdminUserListItemViewModel>
+@{
+    ViewData["Title"] = "Quan Ly Nguoi Dung";
+}
+
+<section class="page-hero">
+    <div>
+        <p class="eyebrow">USER MANAGEMENT</p>
+        <h1>Quan ly thong tin, vai tro va trang thai tai khoan.</h1>
+        <p class="lead">Admin co the sua thong tin, khoa mo tai khoan va xoa nguoi dung khi can.</p>
+    </div>
+</section>
+
+<section class="surface-card">
+    <div class="table-shell">
+        <table class="table table-dark mb-0">
+            <thead>
+                <tr>
+                    <th>Nguoi dung</th>
+                    <th>Vai tro</th>
+                    <th>Trang thai</th>
+                    <th>Plan / Goal / Log</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.User.FullName</strong>
+                            <div>@item.User.Username | @item.User.Email</div>
+                        </td>
+                        <td>@item.User.Role</td>
+                        <td>@(item.User.IsActive ? "Hoat dong" : "Da khoa")</td>
+                        <td>@item.PlanCount / @item.GoalCount / @item.LogCount</td>
+                        <td>
+                            <div class="actions-row">
+                                <a asp-action="Edit" asp-route-id="@item.User.UserID">Sua</a>
+                                <a asp-action="Delete" asp-route-id="@item.User.UserID">Xoa</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <p class="empty-state mt-4">Chua co nguoi dung nao.</p>
+    }
+</section>

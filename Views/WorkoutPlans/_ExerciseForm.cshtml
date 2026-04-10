@@ -1,0 +1,33 @@
+@model WorkoutExerciseFormViewModel
+
+<div class="field">
+    <label asp-for="ExerciseID"></label>
+    <select asp-for="ExerciseID" asp-items="ViewBag.Exercises" class="form-select"></select>
+    <span asp-validation-for="ExerciseID" class="text-danger"></span>
+</div>
+
+<div class="field-grid">
+    <div class="field">
+        <label asp-for="Sets"></label>
+        <input asp-for="Sets" class="form-control" />
+        <span asp-validation-for="Sets" class="text-danger"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Reps"></label>
+        <input asp-for="Reps" class="form-control" />
+        <span asp-validation-for="Reps" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="field-grid">
+    <div class="field">
+        <label asp-for="RestTime"></label>
+        <input asp-for="RestTime" class="form-control" />
+        <span asp-validation-for="RestTime" class="text-danger"></span>
+    </div>
+    <div class="field">
+        <label asp-for="DisplayOrder"></label>
+        <input asp-for="DisplayOrder" class="form-control" />
+        <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+    </div>
+</div>

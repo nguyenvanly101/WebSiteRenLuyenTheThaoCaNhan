@@ -1,0 +1,22 @@
+@model User
+@{
+    ViewData["Title"] = "Xoa Nguoi Dung";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Admin</p>
+    <h1>Xoa nguoi dung @Model.FullName</h1>
+    <p class="lead">Tai khoan va du lieu lien quan se bi xoa khoi he thong.</p>
+
+    <div class="stack-list mt-4">
+        <article class="stack-item"><strong>Username:</strong> @Model.Username</article>
+        <article class="stack-item"><strong>Email:</strong> @Model.Email</article>
+        <article class="stack-item"><strong>Vai tro:</strong> @Model.Role</article>
+    </div>
+
+    <form asp-action="Delete" method="post" class="actions-row mt-4">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="button">Xac nhan xoa</button>
+        <a class="button button--ghost" asp-action="Index">Huy</a>
+    </form>
+</section>

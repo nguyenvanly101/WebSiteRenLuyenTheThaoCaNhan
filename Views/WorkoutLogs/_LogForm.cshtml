@@ -1,0 +1,26 @@
+@model WorkoutLogFormViewModel
+
+<div class="field-grid">
+    <div class="field">
+        <label asp-for="WorkoutDate"></label>
+        <input asp-for="WorkoutDate" type="date" class="form-control" />
+        <span asp-validation-for="WorkoutDate" class="text-danger"></span>
+    </div>
+    <div class="field">
+        <label asp-for="DurationMinutes"></label>
+        <input asp-for="DurationMinutes" class="form-control" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="field">
+    <label asp-for="EnergyLevel"></label>
+    <select asp-for="EnergyLevel" asp-items="ViewBag.EnergyLevels" class="form-select"></select>
+    <span asp-validation-for="EnergyLevel" class="text-danger"></span>
+</div>
+
+<div class="field">
+    <label asp-for="Note"></label>
+    <textarea asp-for="Note" class="form-control"></textarea>
+    <span asp-validation-for="Note" class="text-danger"></span>
+</div>

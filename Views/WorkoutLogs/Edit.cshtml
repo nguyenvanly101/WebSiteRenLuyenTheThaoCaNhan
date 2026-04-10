@@ -1,0 +1,22 @@
+@model WorkoutLogFormViewModel
+@{
+    ViewData["Title"] = "Sua Workout Log";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Edit Log</p>
+    <h1>Cap nhat thong tin buoi tap</h1>
+    <form asp-action="Edit" method="post" class="form-stack mt-4">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <partial name="_LogForm" model="Model" />
+        <div class="actions-row">
+            <button type="submit" class="button">Cap nhat</button>
+            <a class="button button--ghost" asp-action="Index">Quay lai</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -12,15 +12,20 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Models
         public int LogID { get; set; }
         public int ExerciseID { get; set; }
 
+        [Range(1, 20)]
         public int SetNumber { get; set; }
+
+        [Range(0, 1000)]
         public int Reps { get; set; }
+
+        [Range(0, 1000)]
         public float Weight { get; set; }
 
         // Navigation
         [ForeignKey("LogID")]
-        public WorkoutLog WorkoutLog { get; set; }
+        public WorkoutLog WorkoutLog { get; set; } = null!;
 
         [ForeignKey("ExerciseID")]
-        public Exercise Exercise { get; set; }
+        public Exercise Exercise { get; set; } = null!;
     }
 }

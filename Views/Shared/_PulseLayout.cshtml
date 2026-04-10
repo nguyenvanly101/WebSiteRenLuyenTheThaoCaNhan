@@ -1,0 +1,91 @@
+@using WebsiteRenLuyenTheThaoCaNhan.Infrastructure
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var isAdmin = User.IsInRole(AppRoles.Admin);
+    string NavClass(string controllerName) => controller == controllerName ? "nav-link is-active" : "nav-link";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PulseForge</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebsiteRenLuyenTheThaoCaNhan.styles.css" asp-append-version="true" />
+</head>
+<body class="app-shell">
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <header class="site-header">
+        <div class="shell site-header-inner">
+            <a class="brand-mark" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark__tag">PulseForge</span>
+                <strong>Training Portal</strong>
+            </a>
+
+            <nav class="site-nav">
+                @if (isAuthenticated && !isAdmin)
+                {
+                    <a class="@NavClass("Dashboard")" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                    <a class="@NavClass("WorkoutPlans")" asp-controller="WorkoutPlans" asp-action="Index">Lich tap</a>
+                    <a class="@NavClass("WorkoutLogs")" asp-controller="WorkoutLogs" asp-action="Index">Buoi tap</a>
+                    <a class="@NavClass("Progress")" asp-controller="Progress" asp-action="Index">Tien do</a>
+                    <a class="@NavClass("Goals")" asp-controller="Goals" asp-action="Index">Muc tieu</a>
+                }
+                else if (isAuthenticated && isAdmin)
+                {
+                    <a class="@NavClass("Admin")" asp-controller="Admin" asp-action="Index">Tong quan</a>
+                    <a class="@NavClass("AdminExercises")" asp-controller="AdminExercises" asp-action="Index">Quan ly bai tap</a>
+                    <a class="@NavClass("AdminUsers")" asp-controller="AdminUsers" asp-action="Index">Quan ly nguoi dung</a>
+                }
+                else
+                {
+                    <a class="@NavClass("Home")" asp-controller="Home" asp-action="Index">Trang chu</a>
+                    <a class="@NavClass("Account")" asp-controller="Account" asp-action="Login">Dang nhap</a>
+                    <a class="@NavClass("Home")" asp-controller="Home" asp-action="Privacy">Chinh sach</a>
+                }
+            </nav>
+
+            <div class="site-actions">
+                @if (isAuthenticated)
+                {
+                    <div class="identity-chip">
+                        <span class="identity-chip__label">@(isAdmin ? "ADMIN" : "ATHLETE")</span>
+                        <strong>@(User.Identity?.Name ?? "User")</strong>
+                    </div>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="button button--ghost">Dang xuat</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="button button--ghost" asp-controller="Account" asp-action="Login">Dang nhap</a>
+                    <a class="button" asp-controller="Account" asp-action="Register">Tao tai khoan</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <div class="shell page-shell">
+        @await Html.PartialAsync("_Alert")
+        <main role="main" class="page-content js-reveal">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div class="shell site-footer-inner">
+            <p>PulseForge la workspace quan ly ren luyen ca nhan cho user va admin.</p>
+            <a asp-controller="Home" asp-action="Privacy">Xem chinh sach</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/portal.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

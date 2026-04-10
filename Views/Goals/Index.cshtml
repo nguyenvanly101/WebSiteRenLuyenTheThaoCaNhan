@@ -1,0 +1,45 @@
+@model IEnumerable<Goal>
+@{
+    ViewData["Title"] = "Muc Tieu";
+}
+
+<section class="page-hero">
+    <div>
+        <p class="eyebrow">Goals</p>
+        <h1>Dat muc tieu, cap nhat gia tri hien tai va theo doi muc do hoan thanh.</h1>
+        <p class="lead">Muc tieu trong he thong duoc lien ket truc tiep voi dashboard va trang progress.</p>
+    </div>
+    <div class="hero-actions">
+        <a class="button" asp-action="Create">Tao muc tieu</a>
+    </div>
+</section>
+
+<section class="content-grid content-grid--2">
+    @foreach (var goal in Model)
+    {
+        var percent = goal.TargetValue <= 0 ? 0 : (int)Math.Clamp((goal.CurrentValue / goal.TargetValue) * 100, 0, 100);
+        <article class="surface-card js-reveal">
+            <div class="card-head">
+                <div>
+                    <p class="eyebrow">@goal.GoalType</p>
+                    <h2>@goal.Title</h2>
+                </div>
+                <span class="pill">@goal.Status</span>
+            </div>
+            <p>@goal.CurrentValue / @goal.TargetValue @goal.Unit</p>
+            <div class="progress-meter mt-3"><div class="progress-meter__fill" style="width:@percent%"></div></div>
+            <div class="actions-row mt-4">
+                <span class="pill">@goal.StartDate.ToString("dd/MM") - @goal.EndDate.ToString("dd/MM")</span>
+                <a class="button button--ghost" asp-action="Edit" asp-route-id="@goal.GoalID">Sua</a>
+                <a class="button button--ghost" asp-action="Delete" asp-route-id="@goal.GoalID">Xoa</a>
+            </div>
+        </article>
+    }
+
+    @if (!Model.Any())
+    {
+        <article class="surface-card">
+            <p class="empty-state">Chua co muc tieu nao.</p>
+        </article>
+    }
+</section>

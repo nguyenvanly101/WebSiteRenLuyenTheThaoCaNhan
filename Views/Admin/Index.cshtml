@@ -1,0 +1,75 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Quan Tri";
+}
+
+<section class="page-hero">
+    <div>
+        <p class="eyebrow">ADMIN DASHBOARD</p>
+        <h1>Bang dieu khien quan tri cho he thong PulseForge.</h1>
+        <p class="lead">Theo doi tong quan nguoi dung, bai tap, lich tap va workout log tu mot man hinh duy nhat.</p>
+    </div>
+    <div class="hero-actions">
+        <a class="button" asp-controller="AdminExercises" asp-action="Index">Quan ly bai tap</a>
+        <a class="button button--ghost" asp-controller="AdminUsers" asp-action="Index">Quan ly nguoi dung</a>
+    </div>
+</section>
+
+<section class="metric-grid">
+    <article class="metric-card"><span class="metric-card__label">Tong user</span><strong>@Model.TotalUsers</strong></article>
+    <article class="metric-card"><span class="metric-card__label">User hoat dong</span><strong>@Model.ActiveUsers</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Bai tap</span><strong>@Model.TotalExercises</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Lich tap / Log</span><strong>@Model.TotalPlans / @Model.TotalLogs</strong></article>
+</section>
+
+<section class="content-grid content-grid--2">
+    <article class="surface-card js-reveal">
+        <div class="card-head">
+            <div>
+                <p class="eyebrow">Recent Users</p>
+                <h2>Tai khoan moi nhat</h2>
+            </div>
+            <a asp-controller="AdminUsers" asp-action="Index">Xem tat ca</a>
+        </div>
+
+        @if (Model.RecentUsers.Any())
+        {
+            <div class="stack-list">
+                @foreach (var user in Model.RecentUsers)
+                {
+                    <article class="stack-item">
+                        <div class="stack-item__head">
+                            <strong>@user.FullName</strong>
+                            <span>@user.Role</span>
+                        </div>
+                        <p>@user.Username | @user.Email</p>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="empty-state">Chua co nguoi dung nao trong he thong.</p>
+        }
+    </article>
+
+    <article class="surface-card js-reveal">
+        <div class="card-head">
+            <div>
+                <p class="eyebrow">Admin Tasks</p>
+                <h2>Luong chuc nang hien co</h2>
+            </div>
+        </div>
+
+        <div class="stack-list">
+            <article class="stack-item">
+                <div class="stack-item__head"><strong>Quan ly bai tap</strong><span>CRUD</span></div>
+                <p>Tao, sua, xoa va xem muc do su dung cua bai tap trong lich tap va buoi tap.</p>
+            </article>
+            <article class="stack-item">
+                <div class="stack-item__head"><strong>Quan ly nguoi dung</strong><span>Edit / Delete</span></div>
+                <p>Cap nhat thong tin, phan quyen, khoa mo tai khoan va xoa nguoi dung.</p>
+            </article>
+        </div>
+    </article>
+</section>

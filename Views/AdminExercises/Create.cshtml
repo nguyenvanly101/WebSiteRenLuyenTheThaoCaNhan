@@ -1,0 +1,22 @@
+@model Exercise
+@{
+    ViewData["Title"] = "Them Bai Tap";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Admin</p>
+    <h1>Tao bai tap moi</h1>
+    <form asp-action="Create" method="post" class="form-stack mt-4">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <partial name="_ExerciseForm" model="Model" />
+        <div class="actions-row">
+            <button type="submit" class="button">Luu bai tap</button>
+            <a class="button button--ghost" asp-action="Index">Quay lai</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

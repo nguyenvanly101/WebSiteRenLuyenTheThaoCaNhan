@@ -2,14 +2,36 @@
 {
     public class User
     {
+        [System.ComponentModel.DataAnnotations.Key]
         public int UserID { get; set; }
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public string PasswordHash { get; set; }
-        public string Role { get; set; } // e.g., "Admin", "User"
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(80)]
+        public string FullName { get; set; } = string.Empty;
 
-        public List<WorkoutPlan> WorkoutPlans { get; set; } // Navigation property to user's workout plans
-        public List<Goal> Goals { get; set; } // Navigation property to user's goals
-        public List<WorkoutLog> WorkoutLogs { get; set; }
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(40)]
+        public string Username { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        [System.ComponentModel.DataAnnotations.StringLength(120)]
+        public string Email { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        public string PasswordHash { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(20)]
+        public string Role { get; set; } = "User";
+
+        public bool IsActive { get; set; } = true;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime? LastLoginAt { get; set; }
+
+        public ICollection<WorkoutPlan> WorkoutPlans { get; set; } = new List<WorkoutPlan>();
+        public ICollection<Goal> Goals { get; set; } = new List<Goal>();
+        public ICollection<WorkoutLog> WorkoutLogs { get; set; } = new List<WorkoutLog>();
     }
 }

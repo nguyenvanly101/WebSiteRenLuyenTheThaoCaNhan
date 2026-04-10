@@ -1,0 +1,20 @@
+@model WorkoutDayFormViewModel
+
+<div class="field-grid">
+    <div class="field">
+        <label asp-for="DayNumber"></label>
+        <input asp-for="DayNumber" class="form-control" />
+        <span asp-validation-for="DayNumber" class="text-danger"></span>
+    </div>
+    <div class="field">
+        <label asp-for="FocusArea"></label>
+        <input asp-for="FocusArea" class="form-control" />
+        <span asp-validation-for="FocusArea" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="field">
+    <label asp-for="Note"></label>
+    <textarea asp-for="Note" class="form-control"></textarea>
+    <span asp-validation-for="Note" class="text-danger"></span>
+</div>

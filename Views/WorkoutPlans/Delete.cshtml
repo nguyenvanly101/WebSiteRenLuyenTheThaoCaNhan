@@ -1,0 +1,19 @@
+@model WorkoutPlan
+@{
+    ViewData["Title"] = "Xoa Ke Hoach";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Delete Plan</p>
+    <h1>Xoa ke hoach @Model.PlanName?</h1>
+    <p class="lead">Hanh dong nay se xoa toan bo ngay tap va bai tap trong ke hoach.</p>
+    <div class="actions-row mt-4">
+        <span class="pill">@Model.WorkoutDays.Count ngay tap</span>
+        <span class="pill">@Model.Goal</span>
+    </div>
+    <form asp-action="Delete" method="post" class="actions-row mt-4">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="button">Xac nhan xoa</button>
+        <a class="button button--ghost" asp-action="Index">Huy</a>
+    </form>
+</section>

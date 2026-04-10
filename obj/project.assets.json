@@ -4022,11 +4022,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\BTLWEBNC\\WebsiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan.csproj",
+      "projectUniqueName": "D:\\GitHub\\WebSiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan.csproj",
       "projectName": "WebsiteRenLuyenTheThaoCaNhan",
-      "projectPath": "D:\\BTLWEBNC\\WebsiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan.csproj",
+      "projectPath": "D:\\GitHub\\WebSiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan.csproj",
       "packagesPath": "C:\\Users\\vanly\\.nuget\\packages\\",
-      "outputPath": "D:\\BTLWEBNC\\WebsiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan\\obj\\",
+      "outputPath": "D:\\GitHub\\WebSiteRenLuyenTheThaoCaNhan\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

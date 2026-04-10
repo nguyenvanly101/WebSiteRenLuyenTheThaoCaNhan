@@ -1,0 +1,49 @@
+@model IEnumerable<WorkoutPlan>
+@{
+    ViewData["Title"] = "Lich Tap";
+}
+
+<section class="page-hero">
+    <div>
+        <p class="eyebrow">Workout Plans</p>
+        <h1>Quan ly toan bo lich tap cua ban theo tung ke hoach.</h1>
+        <p class="lead">Moi ke hoach co the duoc mo rong bang ngay tap va danh sach bai tap trong tung ngay.</p>
+    </div>
+    <div class="hero-actions">
+        <a class="button" asp-action="Create">Tao ke hoach</a>
+    </div>
+</section>
+
+<section class="content-grid content-grid--2">
+    @foreach (var plan in Model)
+    {
+        var exerciseCount = plan.WorkoutDays.SelectMany(day => day.WorkoutExercises).Count();
+        <article class="surface-card js-reveal">
+            <div class="card-head">
+                <div>
+                    <p class="eyebrow">@plan.Level</p>
+                    <h2>@plan.PlanName</h2>
+                </div>
+                <span class="pill">@plan.Goal</span>
+            </div>
+            <p>@plan.Summary</p>
+            <div class="actions-row">
+                <span class="pill">@plan.Duration ngay</span>
+                <span class="pill">@plan.WorkoutDays.Count ngay tap</span>
+                <span class="pill">@exerciseCount bai tap</span>
+            </div>
+            <div class="actions-row">
+                <a class="button button--ghost" asp-action="Details" asp-route-id="@plan.PlanID">Chi tiet</a>
+                <a class="button button--ghost" asp-action="Edit" asp-route-id="@plan.PlanID">Sua</a>
+                <a class="button button--ghost" asp-action="Delete" asp-route-id="@plan.PlanID">Xoa</a>
+            </div>
+        </article>
+    }
+
+    @if (!Model.Any())
+    {
+        <article class="surface-card">
+            <p class="empty-state">Chua co ke hoach nao. Tao ke hoach moi de bat dau hanh trinh tap luyen.</p>
+        </article>
+    }
+</section>

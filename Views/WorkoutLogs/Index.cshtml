@@ -1,0 +1,44 @@
+@model IEnumerable<WorkoutLog>
+@{
+    ViewData["Title"] = "Buoi Tap";
+}
+
+<section class="page-hero">
+    <div>
+        <p class="eyebrow">Workout Logs</p>
+        <h1>Ghi nhan moi buoi tap va xem lai lich su tap luyen.</h1>
+        <p class="lead">Moi buoi tap co the duoc bo sung chi tiet theo tung bai tap, so set, reps va muc ta.</p>
+    </div>
+    <div class="hero-actions">
+        <a class="button" asp-action="Create">Tao workout log</a>
+    </div>
+</section>
+
+<section class="content-grid content-grid--2">
+    @foreach (var log in Model)
+    {
+        <article class="surface-card js-reveal">
+            <div class="card-head">
+                <div>
+                    <p class="eyebrow">@log.WorkoutDate.ToString("dd/MM/yyyy")</p>
+                    <h2>@log.DurationMinutes phut</h2>
+                </div>
+                <span class="pill">@log.EnergyLevel</span>
+            </div>
+            <p>@log.Note</p>
+            <div class="actions-row">
+                <span class="pill">@log.WorkoutLogDetails.Count chi tiet</span>
+                <a class="button button--ghost" asp-action="Details" asp-route-id="@log.LogID">Chi tiet</a>
+                <a class="button button--ghost" asp-action="Edit" asp-route-id="@log.LogID">Sua</a>
+                <a class="button button--ghost" asp-action="Delete" asp-route-id="@log.LogID">Xoa</a>
+            </div>
+        </article>
+    }
+
+    @if (!Model.Any())
+    {
+        <article class="surface-card">
+            <p class="empty-state">Chua co workout log nao.</p>
+        </article>
+    }
+</section>

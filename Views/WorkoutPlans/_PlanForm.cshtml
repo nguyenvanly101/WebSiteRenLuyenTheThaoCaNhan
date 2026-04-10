@@ -1,0 +1,32 @@
+@model WorkoutPlanFormViewModel
+
+<div class="field">
+    <label asp-for="PlanName"></label>
+    <input asp-for="PlanName" class="form-control" />
+    <span asp-validation-for="PlanName" class="text-danger"></span>
+</div>
+
+<div class="field-grid">
+    <div class="field">
+        <label asp-for="Goal"></label>
+        <input asp-for="Goal" class="form-control" />
+        <span asp-validation-for="Goal" class="text-danger"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Level"></label>
+        <input asp-for="Level" class="form-control" />
+        <span asp-validation-for="Level" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="field">
+    <label asp-for="Summary"></label>
+    <textarea asp-for="Summary" class="form-control"></textarea>
+    <span asp-validation-for="Summary" class="text-danger"></span>
+</div>
+
+<div class="field">
+    <label asp-for="Duration"></label>
+    <input asp-for="Duration" class="form-control" />
+    <span asp-validation-for="Duration" class="text-danger"></span>
+</div>

@@ -1,0 +1,49 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Dang Nhap";
+}
+
+<section class="auth-shell">
+    <div class="auth-copy js-reveal">
+        <p class="eyebrow">WELCOME BACK</p>
+        <h1>Dang nhap de tiep tuc quan ly hanh trinh ren luyen.</h1>
+        <p class="lead">User co dashboard ca nhan. Admin co khu quan tri rieng cho bai tap va nguoi dung.</p>
+        <div class="stack-list">
+            <article class="stack-item"><strong>Workout plans:</strong> CRUD day du, them ngay tap va bai tap theo tung ngay.</article>
+            <article class="stack-item"><strong>Workout logs:</strong> Ghi tung buoi tap, tung set, reps, muc ta, tong volume.</article>
+            <article class="stack-item"><strong>Progress:</strong> Theo doi muc tieu, tan suat tap va nhom co duoc kich hoat.</article>
+        </div>
+    </div>
+
+    <div class="auth-card js-reveal">
+        <form asp-action="Login" method="post" class="form-stack">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="field">
+                <label asp-for="Login"></label>
+                <input asp-for="Login" class="form-control" />
+                <span asp-validation-for="Login" class="text-danger"></span>
+            </div>
+
+            <div class="field">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <label class="checkbox-line">
+                <input asp-for="RememberMe" />
+                <span>Ghi nho phien dang nhap</span>
+            </label>
+
+            <button type="submit" class="button button--block">Dang nhap</button>
+            <p class="form-footnote">Chua co tai khoan? <a asp-action="Register">Dang ky ngay</a></p>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

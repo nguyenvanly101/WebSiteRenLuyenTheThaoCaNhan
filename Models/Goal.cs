@@ -12,18 +12,34 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Models
         // Foreign Key
         public int UserID { get; set; }
 
-        [StringLength(50)]
-        public string GoalType { get; set; } // giảm cân, tăng cơ
+        [Required]
+        [StringLength(100)]
+        public string Title { get; set; } = string.Empty;
 
+        [Required]
+        [StringLength(50)]
+        public string GoalType { get; set; } = string.Empty;
+
+        [Range(0, 999999)]
         public float TargetValue { get; set; }
+
+        [Range(0, 999999)]
         public float CurrentValue { get; set; }
 
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        [Required]
+        [StringLength(20)]
+        public string Unit { get; set; } = "kg";
+
+        [Required]
+        [StringLength(20)]
+        public string Status { get; set; } = "Active";
+
+        public DateTime StartDate { get; set; } = DateTime.Today;
+        public DateTime EndDate { get; set; } = DateTime.Today.AddMonths(2);
 
         // Navigation
         [ForeignKey("UserID")]
-        public User User { get; set; }
+        public User User { get; set; } = null!;
     }
 
 }

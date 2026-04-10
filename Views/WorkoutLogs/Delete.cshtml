@@ -1,0 +1,15 @@
+@model WorkoutLog
+@{
+    ViewData["Title"] = "Xoa Workout Log";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Delete Log</p>
+    <h1>Xoa buoi tap ngay @Model.WorkoutDate.ToString("dd/MM/yyyy")?</h1>
+    <p class="lead">Tat ca chi tiet trong buoi tap nay se bi xoa.</p>
+    <form asp-action="Delete" method="post" class="actions-row mt-4">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="button">Xac nhan xoa</button>
+        <a class="button button--ghost" asp-action="Index">Huy</a>
+    </form>
+</section>

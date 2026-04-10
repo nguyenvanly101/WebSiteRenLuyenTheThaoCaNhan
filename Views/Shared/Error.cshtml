@@ -1,0 +1,19 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Loi";
+}
+
+<section class="page-hero compact-hero">
+    <div>
+        <p class="eyebrow">Unexpected</p>
+        <h1>He thong gap loi khi xu ly yeu cau.</h1>
+        <p class="lead">Hay thu tai lai trang hoac quay ve dashboard. Neu loi lap lai, kiem tra log ung dung va ket noi LocalDB.</p>
+    </div>
+    @if (Model.ShowRequestId)
+    {
+        <div class="surface-card">
+            <p class="meta-label">Request ID</p>
+            <code>@Model.RequestId</code>
+        </div>
+    }
+</section>

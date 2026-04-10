@@ -1,8 +1,30 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang Chu";
 }
+@model LandingPageViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-grid">
+    <div class="hero-panel hero-panel--primary js-reveal">
+        <p class="eyebrow">PERSONAL TRAINING CONTROL CENTER</p>
+        <h1>Xay dung lich tap, ghi log moi buoi va theo sat tien do trong mot he thong duy nhat.</h1>
+        <p class="lead">PulseForge duoc thiet ke de nguoi tap co mot workspace ro rang cho plan, goal, tracking va admin co mot khu quan tri bai tap, nguoi dung tap trung.</p>
+        <div class="hero-actions">
+            <a class="button" asp-controller="Account" asp-action="Register">Bat dau ngay</a>
+            <a class="button button--ghost" asp-controller="Account" asp-action="Login">Dang nhap he thong</a>
+        </div>
+    </div>
+
+    <div class="hero-panel hero-panel--secondary js-reveal">
+        <div class="stack-list">
+            <article class="stack-item"><p class="meta-label">User Flow</p><h2>Dang nhap, tao ke hoach, ghi nhan buoi tap, xem tien do, dat muc tieu.</h2></article>
+            <article class="stack-item"><p class="meta-label">Admin Flow</p><h2>Quan ly bai tap, quan ly tai khoan va giam sat muc do hoat dong toan he thong.</h2></article>
+            <article class="stack-item"><p class="meta-label">Design Direction</p><h2>Dashboard dam chat performance, typography manh va cards nhu trung tam dieu khien.</h2></article>
+        </div>
+    </div>
+</section>
+
+<section class="content-grid content-grid--3 js-reveal">
+    <article class="surface-card"><p class="eyebrow">Users</p><h3>@Model.TotalUsers thanh vien</h3><p>He thong co the mo rong cho user va admin trong cung mot codebase.</p></article>
+    <article class="surface-card"><p class="eyebrow">Exercises</p><h3>@Model.TotalExercises bai tap</h3><p>Admin co danh muc bai tap de tai su dung xuyen suot cho lich tap va workout log.</p></article>
+    <article class="surface-card"><p class="eyebrow">Tracking</p><h3>@Model.TotalLogs ban ghi workout</h3><p>Moi buoi tap duoc theo doi theo chi tiet tung set de phuc vu progress dashboard.</p></article>
+</section>

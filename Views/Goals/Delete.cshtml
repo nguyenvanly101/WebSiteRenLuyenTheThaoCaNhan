@@ -1,0 +1,15 @@
+@model Goal
+@{
+    ViewData["Title"] = "Xoa Muc Tieu";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Delete Goal</p>
+    <h1>Xoa muc tieu @Model.Title?</h1>
+    <p class="lead">Muc tieu nay se bi loai bo khoi dashboard va progress tracker.</p>
+    <form asp-action="Delete" method="post" class="actions-row mt-4">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="button">Xac nhan xoa</button>
+        <a class="button button--ghost" asp-action="Index">Huy</a>
+    </form>
+</section>

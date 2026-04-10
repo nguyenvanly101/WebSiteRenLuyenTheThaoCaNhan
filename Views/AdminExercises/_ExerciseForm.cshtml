@@ -1,0 +1,39 @@
+@model Exercise
+
+<div class="field">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="field-grid">
+    <div class="field">
+        <label asp-for="MuscleGroup"></label>
+        <input asp-for="MuscleGroup" class="form-control" />
+        <span asp-validation-for="MuscleGroup" class="text-danger"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Equipment"></label>
+        <input asp-for="Equipment" class="form-control" />
+        <span asp-validation-for="Equipment" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="field-grid">
+    <div class="field">
+        <label asp-for="Difficulty"></label>
+        <input asp-for="Difficulty" class="form-control" />
+        <span asp-validation-for="Difficulty" class="text-danger"></span>
+    </div>
+    <div class="field">
+        <label asp-for="VideoUrl"></label>
+        <input asp-for="VideoUrl" class="form-control" />
+        <span asp-validation-for="VideoUrl" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="field">
+    <label asp-for="Description"></label>
+    <textarea asp-for="Description" class="form-control"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>

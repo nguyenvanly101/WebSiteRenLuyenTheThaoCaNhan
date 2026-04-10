@@ -1,0 +1,22 @@
+@model WorkoutDayFormViewModel
+@{
+    ViewData["Title"] = "Them Ngay Tap";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Plan</p>
+    <h1>Them ngay tap cho @ViewBag.PlanName</h1>
+    <form asp-action="AddDay" asp-route-planId="@Model.PlanId" method="post" class="form-stack mt-4">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <partial name="_DayForm" model="Model" />
+        <div class="actions-row">
+            <button type="submit" class="button">Luu ngay tap</button>
+            <a class="button button--ghost" asp-action="Details" asp-route-id="@Model.PlanId">Quay lai</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

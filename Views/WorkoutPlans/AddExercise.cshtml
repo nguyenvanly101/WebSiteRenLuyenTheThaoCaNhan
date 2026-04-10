@@ -1,0 +1,19 @@
+@model WorkoutExerciseFormViewModel
+@{
+    ViewData["Title"] = "Them Bai Tap";
+}
+
+<section class="surface-card">
+    <p class="eyebrow">Day</p>
+    <h1>Them bai tap vao @ViewBag.DayLabel</h1>
+    <form asp-action="AddExercise" asp-route-dayId="@Model.DayId" method="post" class="form-stack mt-4">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <partial name="_ExerciseForm" model="Model" />
+        <button type="submit" class="button">Them bai tap</button>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

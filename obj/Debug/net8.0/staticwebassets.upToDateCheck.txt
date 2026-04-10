@@ -1,6 +1,6 @@
-wwwroot\css\site.css
+wwwroot\css\portal.css
 wwwroot\favicon.ico
-wwwroot\js\site.js
+wwwroot\js\portal.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css

@@ -1,0 +1,58 @@
+@model WorkoutLogDetailsViewModel
+@{
+    ViewData["Title"] = "Chi Tiet Buoi Tap";
+}
+
+<section class="page-hero">
+    <div>
+        <p class="eyebrow">@Model.Log.WorkoutDate.ToString("dd/MM/yyyy")</p>
+        <h1>Buoi tap @Model.Log.DurationMinutes phut</h1>
+        <p class="lead">@Model.Log.Note</p>
+    </div>
+    <div class="hero-actions">
+        <span class="pill">@Model.Log.EnergyLevel</span>
+        <span class="pill">Volume @Model.TotalVolume</span>
+        <a class="button" asp-action="AddDetail" asp-route-logId="@Model.Log.LogID">Them chi tiet</a>
+    </div>
+</section>
+
+<section class="surface-card">
+    <div class="table-shell">
+        <table class="table table-dark mb-0">
+            <thead>
+                <tr>
+                    <th>Bai tap</th>
+                    <th>Set</th>
+                    <th>Reps</th>
+                    <th>Muc ta</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Log.WorkoutLogDetails.OrderBy(entry => entry.SetNumber))
+                {
+                    <tr>
+                        <td>@item.Exercise.Name</td>
+                        <td>@item.SetNumber</td>
+                        <td>@item.Reps</td>
+                        <td>@item.Weight kg</td>
+                        <td>
+                            <div class="actions-row">
+                                <a asp-action="EditDetail" asp-route-id="@item.ID">Sua</a>
+                                <form asp-action="DeleteDetail" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.ID" />
+                                    <button type="submit" class="button button--ghost">Xoa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Model.Log.WorkoutLogDetails.Any())
+    {
+        <p class="empty-state mt-4">Chua co chi tiet nao cho buoi tap nay.</p>
+    }
+</section>

@@ -1,0 +1,96 @@
+@model WorkoutPlanDetailsViewModel
+@{
+    ViewData["Title"] = "Chi Tiet Ke Hoach";
+}
+
+<section class="page-hero">
+    <div>
+        <p class="eyebrow">@Model.Plan.Level</p>
+        <h1>@Model.Plan.PlanName</h1>
+        <p class="lead">@Model.Plan.Summary</p>
+    </div>
+    <div class="hero-actions">
+        <a class="button" asp-action="AddDay" asp-route-planId="@Model.Plan.PlanID">Them ngay tap</a>
+        <a class="button button--ghost" asp-action="Edit" asp-route-id="@Model.Plan.PlanID">Sua ke hoach</a>
+    </div>
+</section>
+
+<section class="metric-grid">
+    <article class="metric-card"><span class="metric-card__label">Muc tieu</span><strong>@Model.Plan.Goal</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Thoi luong</span><strong>@Model.Plan.Duration</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Ngay tap</span><strong>@Model.TotalDays</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Bai tap</span><strong>@Model.TotalExercises</strong></article>
+</section>
+
+<section class="content-grid">
+    @foreach (var day in Model.Plan.WorkoutDays.OrderBy(item => item.DayNumber))
+    {
+        <article class="surface-card js-reveal">
+            <div class="card-head">
+                <div>
+                    <p class="eyebrow">Day @day.DayNumber</p>
+                    <h2>@day.FocusArea</h2>
+                </div>
+                <div class="actions-row">
+                    <a class="button button--ghost" asp-action="AddExercise" asp-route-dayId="@day.DayID">Them bai tap</a>
+                    <a class="button button--ghost" asp-action="EditDay" asp-route-id="@day.DayID">Sua ngay</a>
+                    <form asp-action="DeleteDay" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@day.DayID" />
+                        <button type="submit" class="button button--ghost">Xoa ngay</button>
+                    </form>
+                </div>
+            </div>
+            <p>@day.Note</p>
+
+            @if (day.WorkoutExercises.Any())
+            {
+                <div class="table-shell mt-4">
+                    <table class="table table-dark mb-0">
+                        <thead>
+                            <tr>
+                                <th>Bai tap</th>
+                                <th>Sets</th>
+                                <th>Reps</th>
+                                <th>Rest</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in day.WorkoutExercises.OrderBy(entry => entry.DisplayOrder))
+                            {
+                                <tr>
+                                    <td>@item.Exercise.Name</td>
+                                    <td>@item.Sets</td>
+                                    <td>@item.Reps</td>
+                                    <td>@item.RestTime s</td>
+                                    <td>
+                                        <div class="actions-row">
+                                            <a asp-action="EditExercise" asp-route-id="@item.ID">Sua</a>
+                                            <form asp-action="DeleteExercise" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.ID" />
+                                                <button type="submit" class="button button--ghost">Xoa</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="empty-state">Ngay tap nay chua co bai tap nao.</p>
+            }
+        </article>
+    }
+
+    @if (!Model.Plan.WorkoutDays.Any())
+    {
+        <article class="surface-card">
+            <p class="empty-state">Ke hoach nay chua co ngay tap nao.</p>
+        </article>
+    }
+</section>

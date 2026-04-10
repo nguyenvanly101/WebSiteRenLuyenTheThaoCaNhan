@@ -11,15 +11,20 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Models
         // Foreign Key
         public int PlanID { get; set; }
 
+        [Range(1, 31)]
         public int DayNumber { get; set; }
 
+        [Required]
+        [StringLength(100)]
+        public string FocusArea { get; set; } = string.Empty;
+
         [StringLength(255)]
-        public string Note { get; set; }
+        public string Note { get; set; } = string.Empty;
 
         // Navigation
         [ForeignKey("PlanID")]
-        public WorkoutPlan WorkoutPlan { get; set; }
+        public WorkoutPlan WorkoutPlan { get; set; } = null!;
 
-        public List<WorkoutExercise> WorkoutExercises { get; set; }
+        public ICollection<WorkoutExercise> WorkoutExercises { get; set; } = new List<WorkoutExercise>();
     }
 }

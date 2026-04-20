@@ -1,10 +1,40 @@
-﻿@{
-    ViewData["Title"] = "Chinh Sach";
+@{
+    ViewData["Title"] = "Chính sách";
 }
 <section class="page-hero compact-hero">
     <div>
-        <p class="eyebrow">Privacy</p>
-        <h1>Du lieu tap luyen duoc quan ly o muc toi thieu can thiet de van hanh he thong.</h1>
-        <p class="lead">Website luu thong tin tai khoan, lich tap, buoi tap va muc tieu de phuc vu tracking va phan quyen admin. Trong moi moi truong production, can bo sung chinh sach bao mat, ma hoa secrets va backup database phu hop.</p>
+        <p class="eyebrow">Chính sách</p>
+        <h1>Thông tin tập luyện chỉ được dùng để vận hành và theo dõi trong hệ thống.</h1>
+        <p class="lead">Dữ liệu được lưu gồm tài khoản, kế hoạch tập, buổi tập và mục tiêu để hỗ trợ phân quyền, thống kê và theo dõi tiến độ.</p>
     </div>
+</section>
+
+<section class="content-grid content-grid--2">
+    <article class="surface-card js-reveal">
+        <div class="card-head">
+            <div>
+                <p class="eyebrow">Hệ thống lưu gì</p>
+                <h2>Phạm vi dữ liệu</h2>
+            </div>
+        </div>
+        <ul class="info-list">
+            <li>Thông tin tài khoản để xác thực và phân quyền người dùng.</li>
+            <li>Kế hoạch tập, mục tiêu và nhật ký buổi tập để hiển thị tiến độ.</li>
+            <li>Dữ liệu bài tập để quản trị viên dùng chung trong toàn bộ hệ thống.</li>
+        </ul>
+    </article>
+
+    <article class="surface-card js-reveal">
+        <div class="card-head">
+            <div>
+                <p class="eyebrow">Khuyến nghị vận hành</p>
+                <h2>Bảo vệ dữ liệu</h2>
+            </div>
+        </div>
+        <ul class="info-list">
+            <li>Nên dùng mật khẩu mạnh và giới hạn quyền quản trị ở đúng đối tượng cần thiết.</li>
+            <li>Cần có sao lưu cơ sở dữ liệu và cấu hình bảo mật phù hợp khi triển khai thực tế.</li>
+            <li>Thông tin nhạy cảm như chuỗi kết nối và khóa bí mật nên được lưu tách khỏi mã nguồn.</li>
+        </ul>
+    </article>
 </section>

@@ -1,31 +1,31 @@
 @model DashboardViewModel
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Tổng quan";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">ATHLETE DASHBOARD</p>
-        <h1>@Model.FullName, day la trung tam dieu phoi lich tap va tracking cua ban.</h1>
-        <p class="lead">Theo doi so ke hoach dang van hanh, buoi tap da hoan thanh va muc do tien sat muc tieu tu mot man hinh tong quan.</p>
+        <p class="eyebrow">Tổng quan cá nhân</p>
+        <h1>@Model.FullName, đây là nơi theo dõi kế hoạch tập và kết quả gần đây của bạn.</h1>
+        <p class="lead">Xem nhanh số kế hoạch đang hoạt động, buổi tập đã ghi và tình trạng mục tiêu từ một màn hình tổng hợp.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-controller="WorkoutPlans" asp-action="Create">Tao lich tap</a>
-        <a class="button button--ghost" asp-controller="WorkoutLogs" asp-action="Create">Ghi nhan buoi tap</a>
+        <a class="button" asp-controller="WorkoutPlans" asp-action="Create">Tạo kế hoạch tập</a>
+        <a class="button button--ghost" asp-controller="WorkoutLogs" asp-action="Create">Ghi buổi tập</a>
     </div>
 </section>
 
 <section class="metric-grid js-reveal">
-    <article class="metric-card"><span class="metric-card__label">Ke hoach dang chay</span><strong>@Model.ActivePlans</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Buoi tap da ghi nhan</span><strong>@Model.CompletedWorkouts</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Muc tieu dang mo</span><strong>@Model.ActiveGoals</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Ty le hoan thanh muc tieu</span><strong>@Model.GoalCompletionRate%</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Kế hoạch đang hoạt động</span><strong>@Model.ActivePlans</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Buổi tập đã ghi</span><strong>@Model.CompletedWorkouts</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Mục tiêu đang mở</span><strong>@Model.ActiveGoals</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Tỷ lệ hoàn thành mục tiêu</span><strong>@Model.GoalCompletionRate%</strong></article>
 </section>
 
 <section class="content-grid content-grid--2">
     <article class="surface-card js-reveal">
         <div class="card-head">
-            <div><p class="eyebrow">Weekly Rhythm</p><h2>Tan suat tap 7 ngay gan nhat</h2></div>
+            <div><p class="eyebrow">7 ngày gần đây</p><h2>Tần suất tập luyện</h2></div>
         </div>
         <div class="bar-list">
             @foreach (var item in Model.WeeklyWorkouts)
@@ -41,8 +41,8 @@
 
     <article class="surface-card js-reveal">
         <div class="card-head">
-            <div><p class="eyebrow">Goals</p><h2>Muc tieu dang theo doi</h2></div>
-            <a asp-controller="Goals" asp-action="Index">Quan ly muc tieu</a>
+            <div><p class="eyebrow">Mục tiêu</p><h2>Đang theo dõi</h2></div>
+            <a asp-controller="Goals" asp-action="Index">Quản lý mục tiêu</a>
         </div>
         @if (Model.Goals.Any())
         {
@@ -59,7 +59,7 @@
         }
         else
         {
-            <p class="empty-state">Chua co muc tieu nao. Tao muc tieu moi de he thong theo doi tien do.</p>
+            <p class="empty-state">Chưa có mục tiêu nào. Hãy tạo mục tiêu mới để hệ thống theo dõi tiến độ.</p>
         }
     </article>
 </section>
@@ -67,8 +67,8 @@
 <section class="content-grid content-grid--2">
     <article class="surface-card js-reveal">
         <div class="card-head">
-            <div><p class="eyebrow">Workout Plans</p><h2>Ke hoach noi bat</h2></div>
-            <a asp-controller="WorkoutPlans" asp-action="Index">Xem tat ca</a>
+            <div><p class="eyebrow">Kế hoạch tập</p><h2>Kế hoạch nổi bật</h2></div>
+            <a asp-controller="WorkoutPlans" asp-action="Index">Xem tất cả</a>
         </div>
         @if (Model.Plans.Any())
         {
@@ -77,22 +77,22 @@
                 {
                     <article class="stack-item">
                         <div class="stack-item__head"><strong>@plan.PlanName</strong><span>@plan.Level</span></div>
-                        <p>@plan.Goal • @plan.DayCount ngay • @plan.ExerciseCount bai tap • @plan.Duration ngay</p>
-                        <a asp-controller="WorkoutPlans" asp-action="Details" asp-route-id="@plan.PlanId">Mo chi tiet</a>
+                        <p>@plan.Goal • @plan.DayCount ngày • @plan.ExerciseCount bài tập • @plan.Duration ngày</p>
+                        <a asp-controller="WorkoutPlans" asp-action="Details" asp-route-id="@plan.PlanId">Mở chi tiết</a>
                     </article>
                 }
             </div>
         }
         else
         {
-            <p class="empty-state">Ban chua tao ke hoach tap nao.</p>
+            <p class="empty-state">Bạn chưa tạo kế hoạch tập nào.</p>
         }
     </article>
 
     <article class="surface-card js-reveal">
         <div class="card-head">
-            <div><p class="eyebrow">Recent Logs</p><h2>Buoi tap gan day</h2></div>
-            <a asp-controller="WorkoutLogs" asp-action="Index">Xem lich su</a>
+            <div><p class="eyebrow">Buổi tập</p><h2>Gần đây</h2></div>
+            <a asp-controller="WorkoutLogs" asp-action="Index">Xem lịch sử</a>
         </div>
         @if (Model.RecentWorkouts.Any())
         {
@@ -101,15 +101,15 @@
                 {
                     <article class="stack-item">
                         <div class="stack-item__head"><strong>@log.WorkoutDate.ToString("dd/MM/yyyy")</strong><span>@log.EnergyLevel</span></div>
-                        <p>@log.DurationMinutes phut • @log.DetailCount chi tiet</p>
-                        <a asp-controller="WorkoutLogs" asp-action="Details" asp-route-id="@log.LogId">Xem buoi tap</a>
+                        <p>@log.DurationMinutes phút • @log.DetailCount chi tiết</p>
+                        <a asp-controller="WorkoutLogs" asp-action="Details" asp-route-id="@log.LogId">Xem buổi tập</a>
                     </article>
                 }
             </div>
         }
         else
         {
-            <p class="empty-state">Chua co workout log nao duoc ghi nhan.</p>
+            <p class="empty-state">Chưa có buổi tập nào được ghi nhận.</p>
         }
     </article>
 </section>

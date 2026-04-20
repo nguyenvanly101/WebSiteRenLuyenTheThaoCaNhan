@@ -1,26 +1,26 @@
 @model ProgressViewModel
 @{
-    ViewData["Title"] = "Tien Do";
+    ViewData["Title"] = "Tiến độ";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">Performance Overview</p>
-        <h1>Bang tong hop tien do cua @Model.FullName.</h1>
-        <p class="lead">Tong hop so buoi tap, volume, muc tieu va phan bo nhom co duoc tac dong de danh gia qua trinh ren luyen.</p>
+        <p class="eyebrow">Tiến độ</p>
+        <h1>Bảng tổng hợp tiến độ của @Model.FullName.</h1>
+        <p class="lead">Tổng hợp số buổi tập, khối lượng tập, mục tiêu và phân bố nhóm cơ để đánh giá quá trình rèn luyện.</p>
     </div>
 </section>
 
 <section class="metric-grid">
-    <article class="metric-card"><span class="metric-card__label">Tong so session</span><strong>@Model.TotalSessions</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Session thang nay</span><strong>@Model.SessionsThisMonth</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Tong volume</span><strong>@Model.TotalVolume</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Goal completion</span><strong>@Model.GoalCompletionRate%</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Tổng số buổi tập</span><strong>@Model.TotalSessions</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Buổi tập trong tháng</span><strong>@Model.SessionsThisMonth</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Tổng volume</span><strong>@Model.TotalVolume</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Hoàn thành mục tiêu</span><strong>@Model.GoalCompletionRate%</strong></article>
 </section>
 
 <section class="content-grid content-grid--2">
     <article class="surface-card js-reveal">
-        <div class="card-head"><div><p class="eyebrow">Trend</p><h2>Session 6 thang gan nhat</h2></div></div>
+        <div class="card-head"><div><p class="eyebrow">Xu hướng</p><h2>Buổi tập trong 6 tháng gần nhất</h2></div></div>
         <div class="bar-list">
             @foreach (var item in Model.MonthlyWorkouts)
             {
@@ -34,7 +34,7 @@
     </article>
 
     <article class="surface-card js-reveal">
-        <div class="card-head"><div><p class="eyebrow">Muscle Focus</p><h2>Phan bo nhom co</h2></div></div>
+        <div class="card-head"><div><p class="eyebrow">Nhóm cơ</p><h2>Phân bố tác động</h2></div></div>
         @if (Model.MuscleGroups.Any())
         {
             <div class="bar-list">
@@ -50,14 +50,14 @@
         }
         else
         {
-            <p class="empty-state">Chua co du lieu nhom co tu workout log.</p>
+            <p class="empty-state">Chưa có dữ liệu nhóm cơ từ nhật ký buổi tập.</p>
         }
     </article>
 </section>
 
 <section class="content-grid content-grid--2">
     <article class="surface-card">
-        <div class="card-head"><div><p class="eyebrow">Goal Tracker</p><h2>Tien do muc tieu</h2></div></div>
+        <div class="card-head"><div><p class="eyebrow">Mục tiêu</p><h2>Tiến độ hiện tại</h2></div></div>
         @if (Model.GoalProgress.Any())
         {
             <div class="stack-list">
@@ -73,12 +73,12 @@
         }
         else
         {
-            <p class="empty-state">Chua co muc tieu nao duoc thiet lap.</p>
+            <p class="empty-state">Chưa có mục tiêu nào được thiết lập.</p>
         }
     </article>
 
     <article class="surface-card">
-        <div class="card-head"><div><p class="eyebrow">Recent Activity</p><h2>Buoi tap gan day</h2></div></div>
+        <div class="card-head"><div><p class="eyebrow">Hoạt động gần đây</p><h2>Buổi tập gần nhất</h2></div></div>
         @if (Model.RecentWorkouts.Any())
         {
             <div class="stack-list">
@@ -86,14 +86,14 @@
                 {
                     <article class="stack-item">
                         <div class="stack-item__head"><strong>@log.WorkoutDate.ToString("dd/MM/yyyy")</strong><span>@log.EnergyLevel</span></div>
-                        <p>@log.DurationMinutes phut • @log.DetailCount chi tiet</p>
+                        <p>@log.DurationMinutes phút • @log.DetailCount chi tiết</p>
                     </article>
                 }
             </div>
         }
         else
         {
-            <p class="empty-state">Chua co hoat dong nao.</p>
+            <p class="empty-state">Chưa có hoạt động nào.</p>
         }
     </article>
 </section>

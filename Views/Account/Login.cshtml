@@ -1,21 +1,23 @@
 @model LoginViewModel
 @{
-    ViewData["Title"] = "Dang Nhap";
+    ViewData["Title"] = "Đăng nhập";
 }
 
 <section class="auth-shell">
     <div class="auth-copy js-reveal">
-        <p class="eyebrow">WELCOME BACK</p>
-        <h1>Dang nhap de tiep tuc quan ly hanh trinh ren luyen.</h1>
-        <p class="lead">User co dashboard ca nhan. Admin co khu quan tri rieng cho bai tap va nguoi dung.</p>
-        <div class="stack-list">
-            <article class="stack-item"><strong>Workout plans:</strong> CRUD day du, them ngay tap va bai tap theo tung ngay.</article>
-            <article class="stack-item"><strong>Workout logs:</strong> Ghi tung buoi tap, tung set, reps, muc ta, tong volume.</article>
-            <article class="stack-item"><strong>Progress:</strong> Theo doi muc tieu, tan suat tap va nhom co duoc kich hoat.</article>
-        </div>
+        <p class="eyebrow">Đăng nhập</p>
+        <h1>Đăng nhập để tiếp tục theo dõi việc tập luyện.</h1>
+        <p class="lead">Sau khi đăng nhập, bạn có thể mở lại kế hoạch tập, nhật ký buổi tập và các mục tiêu đang theo dõi.</p>
+        
     </div>
 
     <div class="auth-card js-reveal">
+        <div class="auth-card__header">
+            <p class="eyebrow">Biểu mẫu</p>
+            <h2>Đăng nhập tài khoản</h2>
+            <p class="form-footnote">Nhập tên đăng nhập hoặc email để tiếp tục.</p>
+        </div>
+
         <form asp-action="Login" method="post" class="form-stack">
             @Html.AntiForgeryToken()
             <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
@@ -35,11 +37,11 @@
 
             <label class="checkbox-line">
                 <input asp-for="RememberMe" />
-                <span>Ghi nho phien dang nhap</span>
+                <span>Ghi nhớ phiên đăng nhập</span>
             </label>
 
-            <button type="submit" class="button button--block">Dang nhap</button>
-            <p class="form-footnote">Chua co tai khoan? <a asp-action="Register">Dang ky ngay</a></p>
+            <button type="submit" class="button button--block">Đăng nhập</button>
+            <p class="form-footnote">Chưa có tài khoản? <a asp-action="Register">Đăng ký ngay</a></p>
         </form>
     </div>
 </section>

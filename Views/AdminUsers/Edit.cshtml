@@ -1,11 +1,11 @@
-@model AdminUserEditViewModel
+﻿@model AdminUserEditViewModel
 @{
     ViewData["Title"] = "Sua Nguoi Dung";
 }
 
 <section class="surface-card">
     <p class="eyebrow">Admin</p>
-    <h1>Cap nhat thong tin nguoi dung</h1>
+    <h1>Cập nhật thông tin người dùng</h1>
     <form asp-action="Edit" method="post" class="form-stack mt-4">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
@@ -38,15 +38,15 @@
             <div class="field">
                 <label class="checkbox-line">
                     <input asp-for="IsActive" />
-                    <span>Cho phep dang nhap</span>
+                    <span>Cho phép đăng nhập</span>
                 </label>
                 <span asp-validation-for="IsActive" class="text-danger"></span>
             </div>
         </div>
 
         <div class="actions-row">
-            <button type="submit" class="button">Cap nhat</button>
-            <a class="button button--ghost" asp-action="Index">Quay lai</a>
+            <button type="submit" class="button"> Cập nhật</button>
+            <a class="button button--ghost" asp-action="Index">Quay lại</a>
         </div>
     </form>
 </section>

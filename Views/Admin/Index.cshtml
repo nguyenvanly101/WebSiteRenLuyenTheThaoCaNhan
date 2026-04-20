@@ -1,35 +1,35 @@
 @model AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Quan Tri";
+    ViewData["Title"] = "Quản trị";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">ADMIN DASHBOARD</p>
-        <h1>Bang dieu khien quan tri cho he thong PulseForge.</h1>
-        <p class="lead">Theo doi tong quan nguoi dung, bai tap, lich tap va workout log tu mot man hinh duy nhat.</p>
+        <p class="eyebrow">Tổng quan quản trị</p>
+        <h1>Bảng điều khiển quản trị cho toàn bộ hệ thống.</h1>
+        <p class="lead">Theo dõi người dùng, bài tập, kế hoạch tập và nhật ký buổi tập từ một màn hình tổng hợp.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-controller="AdminExercises" asp-action="Index">Quan ly bai tap</a>
-        <a class="button button--ghost" asp-controller="AdminUsers" asp-action="Index">Quan ly nguoi dung</a>
+        <a class="button" asp-controller="AdminExercises" asp-action="Index">Quản lý bài tập</a>
+        <a class="button button--ghost" asp-controller="AdminUsers" asp-action="Index">Quản lý người dùng</a>
     </div>
 </section>
 
 <section class="metric-grid">
-    <article class="metric-card"><span class="metric-card__label">Tong user</span><strong>@Model.TotalUsers</strong></article>
-    <article class="metric-card"><span class="metric-card__label">User hoat dong</span><strong>@Model.ActiveUsers</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Bai tap</span><strong>@Model.TotalExercises</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Lich tap / Log</span><strong>@Model.TotalPlans / @Model.TotalLogs</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Tổng người dùng</span><strong>@Model.TotalUsers</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Người dùng hoạt động</span><strong>@Model.ActiveUsers</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Bài tập</span><strong>@Model.TotalExercises</strong></article>
+    <article class="metric-card"><span class="metric-card__label">Kế hoạch / Nhật ký</span><strong>@Model.TotalPlans / @Model.TotalLogs</strong></article>
 </section>
 
 <section class="content-grid content-grid--2">
     <article class="surface-card js-reveal">
         <div class="card-head">
             <div>
-                <p class="eyebrow">Recent Users</p>
-                <h2>Tai khoan moi nhat</h2>
+                <p class="eyebrow">Người dùng mới</p>
+                <h2>Tài khoản gần đây</h2>
             </div>
-            <a asp-controller="AdminUsers" asp-action="Index">Xem tat ca</a>
+            <a asp-controller="AdminUsers" asp-action="Index">Xem tất cả</a>
         </div>
 
         @if (Model.RecentUsers.Any())
@@ -49,26 +49,26 @@
         }
         else
         {
-            <p class="empty-state">Chua co nguoi dung nao trong he thong.</p>
+            <p class="empty-state">Chưa có người dùng nào trong hệ thống.</p>
         }
     </article>
 
     <article class="surface-card js-reveal">
         <div class="card-head">
             <div>
-                <p class="eyebrow">Admin Tasks</p>
-                <h2>Luong chuc nang hien co</h2>
+                <p class="eyebrow">Tác vụ quản trị</p>
+                <h2>Chức năng hiện có</h2>
             </div>
         </div>
 
         <div class="stack-list">
             <article class="stack-item">
-                <div class="stack-item__head"><strong>Quan ly bai tap</strong><span>CRUD</span></div>
-                <p>Tao, sua, xoa va xem muc do su dung cua bai tap trong lich tap va buoi tap.</p>
+                <div class="stack-item__head"><strong>Quản lý bài tập</strong><span>CRUD</span></div>
+                <p>Tạo, sửa, xóa và theo dõi mức độ sử dụng của bài tập trong kế hoạch và buổi tập.</p>
             </article>
             <article class="stack-item">
-                <div class="stack-item__head"><strong>Quan ly nguoi dung</strong><span>Edit / Delete</span></div>
-                <p>Cap nhat thong tin, phan quyen, khoa mo tai khoan va xoa nguoi dung.</p>
+                <div class="stack-item__head"><strong>Quản lý người dùng</strong><span>Sửa / Xóa</span></div>
+                <p>Cập nhật thông tin, phân quyền, khóa mở tài khoản và xóa người dùng khi cần.</p>
             </article>
         </div>
     </article>

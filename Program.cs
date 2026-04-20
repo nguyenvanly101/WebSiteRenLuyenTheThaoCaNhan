@@ -26,7 +26,14 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    await DbInitializer.InitializeAsync(scope.ServiceProvider);
+    try
+    {
+        await DbInitializer.InitializeAsync(scope.ServiceProvider);
+    }
+    catch (Exception)
+    {
+        // Cho phep ung dung chay phan giao dien cong khai ngay ca khi LocalDB chua san sang.
+    }
 }
 
 if (!app.Environment.IsDevelopment())

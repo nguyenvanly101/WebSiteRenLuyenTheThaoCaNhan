@@ -1,30 +1,129 @@
-﻿@{
-    ViewData["Title"] = "Trang Chu";
+@{
+    ViewData["Title"] = "Trang chủ";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var isAdmin = User.IsInRole("Admin");
 }
 @model LandingPageViewModel
 
-<section class="hero-grid">
-    <div class="hero-panel hero-panel--primary js-reveal">
-        <p class="eyebrow">PERSONAL TRAINING CONTROL CENTER</p>
-        <h1>Xay dung lich tap, ghi log moi buoi va theo sat tien do trong mot he thong duy nhat.</h1>
-        <p class="lead">PulseForge duoc thiet ke de nguoi tap co mot workspace ro rang cho plan, goal, tracking va admin co mot khu quan tri bai tap, nguoi dung tap trung.</p>
-        <div class="hero-actions">
-            <a class="button" asp-controller="Account" asp-action="Register">Bat dau ngay</a>
-            <a class="button button--ghost" asp-controller="Account" asp-action="Login">Dang nhap he thong</a>
-        </div>
-    </div>
+<section class="page-hero page-hero--home">
+    <article class="surface-card js-reveal">
+        <p class="eyebrow">Trang chủ</p>
+        <h1>Theo dõi việc tập luyện theo cách gọn và dễ xem.</h1>
+        <p class="lead">
+            @(isAuthenticated
+                ? "Bạn đã đăng nhập. Bên dưới là phần nội dung đầy đủ để theo dõi dữ liệu và thao tác nhanh hơn."
+                : "Màn hình này ưu tiên các thao tác cần thiết: tạo tài khoản, đăng nhập và xem nhanh dữ liệu đang có trong hệ thống.")
+        </p>
+    </article>
 
-    <div class="hero-panel hero-panel--secondary js-reveal">
-        <div class="stack-list">
-            <article class="stack-item"><p class="meta-label">User Flow</p><h2>Dang nhap, tao ke hoach, ghi nhan buoi tap, xem tien do, dat muc tieu.</h2></article>
-            <article class="stack-item"><p class="meta-label">Admin Flow</p><h2>Quan ly bai tap, quan ly tai khoan va giam sat muc do hoat dong toan he thong.</h2></article>
-            <article class="stack-item"><p class="meta-label">Design Direction</p><h2>Dashboard dam chat performance, typography manh va cards nhu trung tam dieu khien.</h2></article>
+    <aside class="surface-card quick-actions-card js-reveal">
+        <div class="card-head card-head--stacked">
+            <div>
+                <p class="eyebrow">@(isAuthenticated ? "Điều hướng nhanh" : "Bắt đầu nhanh")</p>
+                <h2>@(isAuthenticated ? "Đi đến khu vực làm việc" : "Chọn cách vào hệ thống")</h2>
+            </div>
+            <p class="surface-note">
+                @(isAuthenticated
+                    ? "Bạn có thể tiếp tục tại trang tổng quan hoặc dùng menu trên cùng để chuyển nhanh."
+                    : "Người tập và quản trị viên dùng chung một nơi làm việc.")
+            </p>
         </div>
-    </div>
+        <div class="action-stack">
+            @if (isAuthenticated)
+            {
+                <a class="button button--block" asp-controller="@(isAdmin ? "Admin" : "Dashboard")" asp-action="Index">
+                    @(isAdmin ? "Mở trang quản trị" : "Mở trang tổng quan")
+                </a>
+                <a class="button button--ghost button--block" asp-controller="Progress" asp-action="Index">Xem tiến độ</a>
+            }
+            else
+            {
+                <a class="button button--block" asp-controller="Account" asp-action="Register">Tạo tài khoản mới</a>
+                <a class="button button--ghost button--block" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+            }
+        </div>
+        <ul class="plain-list">
+            @if (isAuthenticated)
+            {
+                <li>Người tập: mở kế hoạch tập, buổi tập và mục tiêu từ menu điều hướng.</li>
+                <li>Quản trị viên: theo dõi bài tập và tài khoản người dùng trong khu vực quản trị.</li>
+            }
+            else
+            {
+                <li>Người tập: quản lý kế hoạch, ghi buổi tập và xem tiến độ.</li>
+                <li>Quản trị viên: quản lý bài tập và tài khoản người dùng.</li>
+            }
+        </ul>
+    </aside>
 </section>
 
-<section class="content-grid content-grid--3 js-reveal">
-    <article class="surface-card"><p class="eyebrow">Users</p><h3>@Model.TotalUsers thanh vien</h3><p>He thong co the mo rong cho user va admin trong cung mot codebase.</p></article>
-    <article class="surface-card"><p class="eyebrow">Exercises</p><h3>@Model.TotalExercises bai tap</h3><p>Admin co danh muc bai tap de tai su dung xuyen suot cho lich tap va workout log.</p></article>
-    <article class="surface-card"><p class="eyebrow">Tracking</p><h3>@Model.TotalLogs ban ghi workout</h3><p>Moi buoi tap duoc theo doi theo chi tiet tung set de phuc vu progress dashboard.</p></article>
-</section>
+@if (isAuthenticated)
+{
+    @if (isAdmin){
+    <section class="content-grid content-grid--4 js-reveal">
+        <article class="surface-card summary-card summary-card--compact">
+            <p class="eyebrow">Thành viên</p>
+            <h3>@Model.TotalUsers</h3>
+            <p>Tài khoản đang có.</p>
+        </article>
+        <article class="surface-card summary-card summary-card--compact">
+            <p class="eyebrow">Bài tập</p>
+            <h3>@Model.TotalExercises</h3>
+            <p>Danh mục dùng chung.</p>
+        </article>
+        <article class="surface-card summary-card summary-card--compact">
+            <p class="eyebrow">Kế hoạch</p>
+            <h3>@Model.TotalPlans</h3>
+            <p>Kế hoạch đã lưu.</p>
+        </article>
+        <article class="surface-card summary-card summary-card--compact">
+            <p class="eyebrow">Buổi tập</p>
+            <h3>@Model.TotalLogs</h3>
+            <p>Nhật ký đã ghi.</p>
+        </article>
+    </section>
+    }
+
+    <section class="content-grid content-grid--2">
+        <article class="surface-card js-reveal">
+            <div class="card-head card-head--stacked">
+                <div>
+                    <p class="eyebrow">Người tập</p>
+                    <h2>Những việc thường dùng</h2>
+                </div>
+                <a asp-controller="Dashboard" asp-action="Index">Mở tổng quan</a>
+            </div>
+            <ul class="info-list">
+                <li>Lập kế hoạch tập theo từng ngày hoặc theo mục tiêu cá nhân.</li>
+                <li>Ghi buổi tập với thời lượng, mức năng lượng và chi tiết bài tập.</li>
+                <li>Xem tiến độ từ dữ liệu đã lưu thay vì ghi chú rời rạc.</li>
+            </ul>
+        </article>
+
+        <article class="surface-card js-reveal">
+            <div class="card-head card-head--stacked">
+                <div>
+                    <p class="eyebrow">Quản trị</p>
+                    <h2>Tổng quan vận hành</h2>
+                </div>
+                <a asp-controller="@(isAdmin ? "Admin" : "Dashboard")" asp-action="Index">Vào hệ thống</a>
+            </div>
+            <div class="stack-list">
+                <article class="stack-item">
+                    <div class="stack-item__head"><strong>@Model.TotalExercises bài tập</strong><span>Danh mục dùng chung</span></div>
+                    <p>Quản lý danh sách bài tập để người dùng chọn khi tạo kế hoạch và nhật ký.</p>
+                </article>
+                @if (isAdmin){
+                <article class="stack-item">
+                    <div class="stack-item__head"><strong>@Model.TotalUsers tài khoản</strong><span>Người dùng hiện có</span></div>
+                    <p>Kiểm tra vai trò và theo dõi số lượng tài khoản trong hệ thống.</p>
+                </article>
+                }
+                <article class="stack-item">
+                    <div class="stack-item__head"><strong>@Model.TotalPlans kế hoạch, @Model.TotalLogs buổi tập</strong><span>Dữ liệu đang lưu</span></div>
+                    <p>Xem nhanh khối lượng dữ liệu hiện có mà không cần mở nhiều trang.</p>
+                </article>
+            </div>
+        </article>
+    </section>
+}

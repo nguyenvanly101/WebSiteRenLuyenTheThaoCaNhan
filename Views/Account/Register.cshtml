@@ -1,16 +1,23 @@
 @model RegisterViewModel
 @{
-    ViewData["Title"] = "Dang Ky";
+    ViewData["Title"] = "Đăng ký";
 }
 
 <section class="auth-shell">
     <div class="auth-copy js-reveal">
-        <p class="eyebrow">NEW MEMBER</p>
-        <h1>Tao tai khoan de bat dau hanh trinh tap luyen co he thong.</h1>
-        <p class="lead">Ngay sau khi dang ky, nguoi dung co the tao lich tap, dat muc tieu va bat dau tracking tren dashboard.</p>
+        <p class="eyebrow">Tạo tài khoản</p>
+        <h1>Tạo tài khoản để bắt đầu sử dụng hệ thống.</h1>
+        <p class="lead">Sau khi đăng ký, bạn có thể lập kế hoạch tập, đặt mục tiêu và ghi lại từng buổi tập trong cùng một nơi.</p>
+        
     </div>
 
     <div class="auth-card js-reveal">
+        <div class="auth-card__header">
+            <p class="eyebrow">Biểu mẫu</p>
+            <h2>Tạo tài khoản mới</h2>
+            <p class="form-footnote">Điền thông tin cơ bản để bắt đầu sử dụng hệ thống.</p>
+        </div>
+
         <form asp-action="Register" method="post" class="form-stack">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
@@ -47,8 +54,8 @@
                 </div>
             </div>
 
-            <button type="submit" class="button button--block">Tao tai khoan</button>
-            <p class="form-footnote">Da co tai khoan? <a asp-action="Login">Dang nhap</a></p>
+            <button type="submit" class="button button--block">Tạo tài khoản</button>
+            <p class="form-footnote">Đã có tài khoản? <a asp-action="Login">Đăng nhập</a></p>
         </form>
     </div>
 </section>

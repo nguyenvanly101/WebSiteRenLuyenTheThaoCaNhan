@@ -18,6 +18,7 @@ builder.Services
         options.AccessDeniedPath = "/Account/Login";
         options.Cookie.Name = "PulseForge.Auth";
         options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
     });
 
 builder.Services.AddAuthorization();

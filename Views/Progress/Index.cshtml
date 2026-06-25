@@ -21,15 +21,21 @@
 <section class="content-grid content-grid--2">
     <article class="surface-card js-reveal">
         <div class="card-head"><div><p class="eyebrow">Xu hướng</p><h2>Buổi tập trong 6 tháng gần nhất</h2></div></div>
-        <div class="bar-list">
-            @foreach (var item in Model.MonthlyWorkouts)
-            {
-                var width = item.MaxValue == 0 ? 0 : Math.Max(8, item.Value * 100 / item.MaxValue);
-                <div class="bar-item">
-                    <div class="bar-item__meta"><span>@item.Label</span><span>@item.Hint</span></div>
-                    <div class="bar-track"><div class="bar-fill" style="width:@width%"></div></div>
-                </div>
-            }
+        <div class="chart-container">
+            <div class="chart-bars">
+                @foreach (var item in Model.MonthlyWorkouts)
+                {
+                    var heightPercent = item.MaxValue == 0 ? 0 : Math.Max(5, item.Value * 100 / item.MaxValue);
+                    <div class="chart-bar-col">
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar-fill" style="height:@heightPercent%">
+                                <span class="chart-bar-tooltip">@item.Hint</span>
+                            </div>
+                        </div>
+                        <div class="chart-bar-label">@item.Label</div>
+                    </div>
+                }
+            </div>
         </div>
     </article>
 

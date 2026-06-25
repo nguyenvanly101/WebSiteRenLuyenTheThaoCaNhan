@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
 using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
-using WebsiteRenLuyenTheThaoCaNhan.Models;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
@@ -12,33 +10,23 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
 public class AdminUsersController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IAdminService _adminService;
 
-    public AdminUsersController(ApplicationDbContext context)
+    public AdminUsersController(IAdminService adminService)
     {
-        _context = context;
+        _adminService = adminService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var items = await _context.Users
-            .OrderByDescending(item => item.CreatedAt)
-            .Select(item => new AdminUserListItemViewModel
-            {
-                User = item,
-                PlanCount = item.WorkoutPlans.Count,
-                GoalCount = item.Goals.Count,
-                LogCount = item.WorkoutLogs.Count
-            })
-            .ToListAsync();
-
+        var items = await _adminService.GetUsersListAsync();
         return View(items);
     }
 
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _adminService.GetUserByIdAsync(id);
         if (user is null)
         {
             return NotFound();
@@ -61,55 +49,50 @@ public class AdminUsersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, AdminUserEditViewModel model)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user is null)
-        {
-            return NotFound();
-        }
-
         PopulateRoles(model.Role);
 
-        if (await _context.Users.AnyAsync(item => item.UserID != id && item.Username == model.Username.Trim()))
+        var currentAdminId = User.GetUserId() ?? 0;
+        var (success, errorMessage) = await _adminService.UpdateUserAsync(id, model, currentAdminId);
+        
+        if (!success)
         {
-            ModelState.AddModelError(nameof(model.Username), "Ten dang nhap da ton tai.");
-        }
+            if (errorMessage == "Người dùng không tồn tại.")
+            {
+                return NotFound();
+            }
 
-        if (await _context.Users.AnyAsync(item => item.UserID != id && item.Email == model.Email.Trim()))
-        {
-            ModelState.AddModelError(nameof(model.Email), "Email da ton tai.");
-        }
+            if (errorMessage == "Tên đăng nhập đã tồn tại.")
+            {
+                ModelState.AddModelError(nameof(model.Username), errorMessage);
+            }
+            else if (errorMessage == "Email đã tồn tại.")
+            {
+                ModelState.AddModelError(nameof(model.Email), errorMessage);
+            }
+            else if (errorMessage == "Bạn không thể khóa chính tài khoản admin đang sử dụng.")
+            {
+                ModelState.AddModelError(nameof(model.IsActive), errorMessage);
+            }
+            else if (errorMessage == "Bạn không thể tự gỡ bỏ quyền admin của chính mình.")
+            {
+                ModelState.AddModelError(nameof(model.Role), errorMessage);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, errorMessage ?? "Lỗi cập nhật người dùng.");
+            }
 
-        var currentAdminId = User.GetUserId();
-        if (currentAdminId == id && !model.IsActive)
-        {
-            ModelState.AddModelError(nameof(model.IsActive), "Ban khong the khoa chinh tai khoan admin dang su dung.");
-        }
-
-        if (currentAdminId == id && model.Role != AppRoles.Admin)
-        {
-            ModelState.AddModelError(nameof(model.Role), "Ban khong the tu go bo quyen admin cua chinh minh.");
-        }
-
-        if (!ModelState.IsValid)
-        {
             return View(model);
         }
 
-        user.FullName = model.FullName.Trim();
-        user.Username = model.Username.Trim();
-        user.Email = model.Email.Trim();
-        user.Role = model.Role;
-        user.IsActive = model.IsActive;
-
-        await _context.SaveChangesAsync();
-        SetStatus("Thong tin nguoi dung da duoc cap nhat.", "success");
+        SetStatus("Thông tin người dùng đã được cập nhật.", "success");
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _adminService.GetUserByIdAsync(id);
         return user is null ? NotFound() : View(user);
     }
 
@@ -117,21 +100,21 @@ public class AdminUsersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (User.GetUserId() == id)
+        var currentAdminId = User.GetUserId() ?? 0;
+        var (success, errorMessage) = await _adminService.DeleteUserAsync(id, currentAdminId);
+
+        if (!success)
         {
-            SetStatus("Ban khong the xoa chinh tai khoan dang dang nhap.", "danger");
+            if (errorMessage == "Người dùng không tồn tại.")
+            {
+                return NotFound();
+            }
+
+            SetStatus(errorMessage ?? "Không thể xóa người dùng.", "danger");
             return RedirectToAction(nameof(Index));
         }
 
-        var user = await _context.Users.FindAsync(id);
-        if (user is null)
-        {
-            return NotFound();
-        }
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-        SetStatus("Nguoi dung da duoc xoa.", "success");
+        SetStatus("Người dùng đã được xóa.", "success");
         return RedirectToAction(nameof(Index));
     }
 

@@ -1,20 +1,18 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
-using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
 using WebsiteRenLuyenTheThaoCaNhan.Models;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IAdminService _adminService;
 
-        public HomeController(ApplicationDbContext context)
+        public HomeController(IAdminService adminService)
         {
-            _context = context;
+            _adminService = adminService;
         }
 
         public async Task<IActionResult> Index()
@@ -23,13 +21,7 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Controllers
 
             try
             {
-                model = new LandingPageViewModel
-                {
-                    TotalUsers = await _context.Users.CountAsync(),
-                    TotalExercises = await _context.Exercises.CountAsync(),
-                    TotalPlans = await _context.WorkoutPlans.CountAsync(),
-                    TotalLogs = await _context.WorkoutLogs.CountAsync()
-                };
+                model = await _adminService.GetLandingPageStatsAsync();
             }
             catch (Exception)
             {

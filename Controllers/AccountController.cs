@@ -2,12 +2,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
 using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
 using WebsiteRenLuyenTheThaoCaNhan.Models;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
@@ -15,11 +13,11 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
 [AllowAnonymous]
 public class AccountController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IAccountService _accountService;
 
-    public AccountController(ApplicationDbContext context)
+    public AccountController(IAccountService accountService)
     {
-        _context = context;
+        _accountService = accountService;
     }
 
     [HttpGet]
@@ -46,25 +44,15 @@ public class AccountController : Controller
         }
 
         var login = model.Login.Trim();
-        var user = await _context.Users.FirstOrDefaultAsync(item => item.Username == login || item.Email == login);
+        var user = await _accountService.AuthenticateAsync(login, model.Password);
 
-        if (user is null || !user.IsActive)
+        if (user is null)
         {
-            ModelState.AddModelError(string.Empty, "Thong tin dang nhap khong hop le hoac tai khoan da bi khoa.");
+            ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không hợp lệ hoặc tài khoản đã bị khóa.");
             return View(model);
         }
 
-        var hasher = new PasswordHasher<User>();
-        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
-
-        if (result == PasswordVerificationResult.Failed)
-        {
-            ModelState.AddModelError(string.Empty, "Thong tin dang nhap khong hop le.");
-            return View(model);
-        }
-
-        user.LastLoginAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
+        await _accountService.UpdateLastLoginAsync(user.UserID);
         await SignInUserAsync(user, model.RememberMe);
 
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -95,17 +83,17 @@ public class AccountController : Controller
             return View(model);
         }
 
-        var usernameExists = await _context.Users.AnyAsync(item => item.Username == model.Username.Trim());
-        var emailExists = await _context.Users.AnyAsync(item => item.Email == model.Email.Trim());
+        var usernameExists = await _accountService.UsernameExistsAsync(model.Username.Trim());
+        var emailExists = await _accountService.EmailExistsAsync(model.Email.Trim());
 
         if (usernameExists)
         {
-            ModelState.AddModelError(nameof(model.Username), "Ten dang nhap da ton tai.");
+            ModelState.AddModelError(nameof(model.Username), "Tên đăng nhập đã tồn tại.");
         }
 
         if (emailExists)
         {
-            ModelState.AddModelError(nameof(model.Email), "Email da duoc su dung.");
+            ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng.");
         }
 
         if (!ModelState.IsValid)
@@ -123,14 +111,15 @@ public class AccountController : Controller
             CreatedAt = DateTime.UtcNow
         };
 
-        var hasher = new PasswordHasher<User>();
-        user.PasswordHash = hasher.HashPassword(user, model.Password);
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        var success = await _accountService.RegisterAsync(user, model.Password);
+        if (!success)
+        {
+            ModelState.AddModelError(string.Empty, "Lỗi tạo tài khoản mới.");
+            return View(model);
+        }
 
         await SignInUserAsync(user, false);
-        TempData["StatusMessage"] = "Tai khoan da duoc tao thanh cong.";
+        TempData["StatusMessage"] = "Tài khoản đã được tạo thành công.";
         TempData["StatusType"] = "success";
 
         return RedirectToAction("Index", "Dashboard");

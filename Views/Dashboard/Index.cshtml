@@ -10,8 +10,14 @@
         <p class="lead">Xem nhanh số kế hoạch đang hoạt động, buổi tập đã ghi và tình trạng mục tiêu từ một màn hình tổng hợp.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-controller="WorkoutPlans" asp-action="Create">Tạo kế hoạch tập</a>
-        <a class="button button--ghost" asp-controller="WorkoutLogs" asp-action="Create">Ghi buổi tập</a>
+        <a class="button" asp-controller="WorkoutPlans" asp-action="Create">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="button-icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Tạo kế hoạch tập
+        </a>
+        <a class="button button--ghost" asp-controller="WorkoutLogs" asp-action="Create">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="button-icon"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            Ghi buổi tập
+        </a>
     </div>
 </section>
 
@@ -27,15 +33,21 @@
         <div class="card-head">
             <div><p class="eyebrow">7 ngày gần đây</p><h2>Tần suất tập luyện</h2></div>
         </div>
-        <div class="bar-list">
-            @foreach (var item in Model.WeeklyWorkouts)
-            {
-                var width = item.MaxValue == 0 ? 0 : Math.Max(8, item.Value * 100 / item.MaxValue);
-                <div class="bar-item">
-                    <div class="bar-item__meta"><span>@item.Label</span><span>@item.Hint</span></div>
-                    <div class="bar-track"><div class="bar-fill" style="width:@width%"></div></div>
-                </div>
-            }
+        <div class="chart-container">
+            <div class="chart-bars">
+                @foreach (var item in Model.WeeklyWorkouts)
+                {
+                    var heightPercent = item.MaxValue == 0 ? 0 : Math.Max(5, item.Value * 100 / item.MaxValue);
+                    <div class="chart-bar-col">
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar-fill" style="height:@heightPercent%">
+                                <span class="chart-bar-tooltip">@item.Hint</span>
+                            </div>
+                        </div>
+                        <div class="chart-bar-label">@item.Label</div>
+                    </div>
+                }
+            </div>
         </div>
     </article>
 

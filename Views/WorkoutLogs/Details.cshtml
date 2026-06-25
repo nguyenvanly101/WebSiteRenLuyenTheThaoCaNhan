@@ -1,48 +1,57 @@
 @model WorkoutLogDetailsViewModel
 @{
-    ViewData["Title"] = "Chi Tiet Buoi Tap";
+    ViewData["Title"] = "Chi tiết Buổi tập";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">@Model.Log.WorkoutDate.ToString("dd/MM/yyyy")</p>
-        <h1>Buoi tap @Model.Log.DurationMinutes phut</h1>
+        <p class="eyebrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="me-1"><rect x="5.5" y="5" width="13" height="14" rx="2"></rect><path d="M6.5 2h11M6.5 22h11M12 2v20M2 6.5h3.5M18.5 6.5H22M2 17.5h3.5M18.5 17.5H22"></path></svg> Nhật ký ngày: @Model.Log.WorkoutDate.ToString("dd/MM/yyyy")</p>
+        <h1>Buổi tập @Model.Log.DurationMinutes phút</h1>
         <p class="lead">@Model.Log.Note</p>
     </div>
     <div class="hero-actions">
-        <span class="pill">@Model.Log.EnergyLevel</span>
-        <span class="pill">Volume @Model.TotalVolume</span>
-        <a class="button" asp-action="AddDetail" asp-route-logId="@Model.Log.LogID">Them chi tiet</a>
+        <span class="pill">Năng lượng: @Model.Log.EnergyLevel</span>
+        <span class="pill pill--orange">Tổng Volume: @Model.TotalVolume kg</span>
+        <a class="button" asp-action="AddDetail" asp-route-logId="@Model.Log.LogID">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Thêm động tác / hiệp
+        </a>
     </div>
 </section>
 
 <section class="surface-card workout-log-details-card">
-    <div class="table-shell table-shell--spacious">
+    <div class="table-shell table-shell--spacious table-responsive">
         <table class="table mb-0 workout-log-details-table">
             <thead>
                 <tr>
-                    <th>Bai tap</th>
-                    <th>Set</th>
-                    <th>Reps</th>
-                    <th>Muc ta</th>
-                    <th></th>
+                    <th>Bài tập</th>
+                    <th>Hiệp số (Set)</th>
+                    <th>Số lần lặp (Reps)</th>
+                    <th>Mức tạ (Weight)</th>
+                    <th style="text-align: right;">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.Log.WorkoutLogDetails.OrderBy(entry => entry.SetNumber))
+                @foreach (var item in Model.Log.WorkoutLogDetails.OrderBy(entry => entry.Exercise.Name).ThenBy(entry => entry.SetNumber))
                 {
                     <tr>
-                        <td>@item.Exercise.Name</td>
-                        <td>@item.SetNumber</td>
-                        <td>@item.Reps</td>
-                        <td>@item.Weight kg</td>
+                        <td><strong>@item.Exercise.Name</strong></td>
+                        <td>Hiệp @item.SetNumber</td>
+                        <td>@item.Reps lần</td>
+                        <td><strong>@item.Weight kg</strong></td>
                         <td>
-                            <div class="actions-row">
-                                <a asp-action="EditDetail" asp-route-id="@item.ID">Sua</a>
-                                <form asp-action="DeleteDetail" method="post">
+                            <div class="actions-row" style="justify-content: flex-end;">
+                                <a class="button button--ghost" asp-action="EditDetail" asp-route-id="@item.ID">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    Sửa
+                                </a>
+                                <form asp-action="DeleteDetail" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@item.ID" />
-                                    <button type="submit" class="button button--ghost">Xoa</button>
+                                    <button type="submit" class="button button--ghost button--danger">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        Xóa
+                                    </button>
                                 </form>
                             </div>
                         </td>
@@ -53,6 +62,6 @@
     </div>
     @if (!Model.Log.WorkoutLogDetails.Any())
     {
-        <p class="empty-state mt-4">Chua co chi tiet nao cho buoi tap nay.</p>
+        <p class="empty-state mt-4">Chưa có chi tiết nào cho buổi tập này. Hãy bấm "Thêm động tác / hiệp" để bắt đầu ghi nhận.</p>
     }
 </section>

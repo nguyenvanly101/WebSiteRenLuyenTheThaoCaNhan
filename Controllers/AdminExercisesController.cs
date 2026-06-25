@@ -1,35 +1,24 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
 using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
 using WebsiteRenLuyenTheThaoCaNhan.Models;
-using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
 
 [Authorize(Roles = AppRoles.Admin)]
 public class AdminExercisesController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IExerciseService _exerciseService;
 
-    public AdminExercisesController(ApplicationDbContext context)
+    public AdminExercisesController(IExerciseService exerciseService)
     {
-        _context = context;
+        _exerciseService = exerciseService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var items = await _context.Exercises
-            .OrderBy(item => item.Name)
-            .Select(item => new AdminExerciseListItemViewModel
-            {
-                Exercise = item,
-                PlanUsageCount = item.WorkoutExercises.Count,
-                LogUsageCount = item.WorkoutLogDetails.Count
-            })
-            .ToListAsync();
-
+        var items = await _exerciseService.GetAdminExercisesAsync();
         return View(items);
     }
 
@@ -48,18 +37,15 @@ public class AdminExercisesController : Controller
             return View(model);
         }
 
-        model.CreatedAt = DateTime.UtcNow;
-        _context.Exercises.Add(model);
-        await _context.SaveChangesAsync();
-
-        SetStatus("Bai tap da duoc tao.", "success");
+        await _exerciseService.CreateAsync(model);
+        SetStatus("Bài tập đã được tạo.", "success");
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var exercise = await _context.Exercises.FindAsync(id);
+        var exercise = await _exerciseService.GetByIdAsync(id);
         return exercise is null ? NotFound() : View(exercise);
     }
 
@@ -67,33 +53,25 @@ public class AdminExercisesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Exercise model)
     {
-        var exercise = await _context.Exercises.FindAsync(id);
-        if (exercise is null)
-        {
-            return NotFound();
-        }
-
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        exercise.Name = model.Name.Trim();
-        exercise.MuscleGroup = model.MuscleGroup.Trim();
-        exercise.Equipment = model.Equipment.Trim();
-        exercise.Difficulty = model.Difficulty.Trim();
-        exercise.Description = model.Description.Trim();
-        exercise.VideoUrl = model.VideoUrl.Trim();
+        var result = await _exerciseService.UpdateAsync(id, model);
+        if (!result)
+        {
+            return NotFound();
+        }
 
-        await _context.SaveChangesAsync();
-        SetStatus("Bai tap da duoc cap nhat.", "success");
+        SetStatus("Bài tập đã được cập nhật.", "success");
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var exercise = await _context.Exercises.FindAsync(id);
+        var exercise = await _exerciseService.GetByIdAsync(id);
         return exercise is null ? NotFound() : View(exercise);
     }
 
@@ -101,21 +79,18 @@ public class AdminExercisesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var exercise = await _context.Exercises.FindAsync(id);
-        if (exercise is null)
-        {
-            return NotFound();
-        }
-
         try
         {
-            _context.Exercises.Remove(exercise);
-            await _context.SaveChangesAsync();
-            SetStatus("Bai tap da duoc xoa.", "success");
+            var result = await _exerciseService.DeleteAsync(id);
+            if (!result)
+            {
+                return NotFound();
+            }
+            SetStatus("Bài tập đã được xóa.", "success");
         }
-        catch (DbUpdateException)
+        catch (Microsoft.EntityFrameworkCore.DbUpdateException)
         {
-            SetStatus("Khong the xoa bai tap dang duoc su dung trong lich tap hoac buoi tap.", "danger");
+            SetStatus("Không thể xóa bài tập đang được sử dụng trong lịch tập hoặc buổi tập.", "danger");
         }
 
         return RedirectToAction(nameof(Index));

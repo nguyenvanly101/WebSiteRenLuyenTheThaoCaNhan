@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
 using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
-using WebsiteRenLuyenTheThaoCaNhan.Models;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
@@ -12,20 +10,16 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
 [Authorize]
 public class GoalsController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IGoalService _goalService;
 
-    public GoalsController(ApplicationDbContext context)
+    public GoalsController(IGoalService goalService)
     {
-        _context = context;
+        _goalService = goalService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var goals = await _context.Goals
-            .Where(item => item.UserID == GetCurrentUserId())
-            .OrderBy(item => item.EndDate)
-            .ToListAsync();
-
+        var goals = await _goalService.GetUserGoalsAsync(GetCurrentUserId());
         return View(goals);
     }
 
@@ -48,28 +42,15 @@ public class GoalsController : Controller
             return View(model);
         }
 
-        _context.Goals.Add(new Goal
-        {
-            UserID = GetCurrentUserId(),
-            Title = model.Title.Trim(),
-            GoalType = model.GoalType,
-            TargetValue = model.TargetValue,
-            CurrentValue = model.CurrentValue,
-            Unit = model.Unit,
-            Status = ResolveGoalStatus(model),
-            StartDate = model.StartDate,
-            EndDate = model.EndDate
-        });
-
-        await _context.SaveChangesAsync();
-        SetStatus("Muc tieu da duoc tao.", "success");
+        await _goalService.CreateGoalAsync(GetCurrentUserId(), model);
+        SetStatus("Mục tiêu đã được tạo.", "success");
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var goal = await GetOwnedGoalsQuery().FirstOrDefaultAsync(item => item.GoalID == id);
+        var goal = await _goalService.GetGoalByIdAsync(id, GetCurrentUserId());
         if (goal is null)
         {
             return NotFound();
@@ -93,12 +74,6 @@ public class GoalsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, GoalFormViewModel model)
     {
-        var goal = await GetOwnedGoalsQuery().FirstOrDefaultAsync(item => item.GoalID == id);
-        if (goal is null)
-        {
-            return NotFound();
-        }
-
         PopulateGoalSelections(model.GoalType, model.Status, model.Unit);
         ValidateGoalDates(model);
 
@@ -107,24 +82,20 @@ public class GoalsController : Controller
             return View(model);
         }
 
-        goal.Title = model.Title.Trim();
-        goal.GoalType = model.GoalType;
-        goal.TargetValue = model.TargetValue;
-        goal.CurrentValue = model.CurrentValue;
-        goal.Unit = model.Unit;
-        goal.Status = ResolveGoalStatus(model);
-        goal.StartDate = model.StartDate;
-        goal.EndDate = model.EndDate;
+        var result = await _goalService.UpdateGoalAsync(id, GetCurrentUserId(), model);
+        if (!result)
+        {
+            return NotFound();
+        }
 
-        await _context.SaveChangesAsync();
-        SetStatus("Muc tieu da duoc cap nhat.", "success");
+        SetStatus("Mục tiêu đã được cập nhật.", "success");
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var goal = await GetOwnedGoalsQuery().FirstOrDefaultAsync(item => item.GoalID == id);
+        var goal = await _goalService.GetGoalByIdAsync(id, GetCurrentUserId());
         return goal is null ? NotFound() : View(goal);
     }
 
@@ -132,22 +103,14 @@ public class GoalsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var goal = await GetOwnedGoalsQuery().FirstOrDefaultAsync(item => item.GoalID == id);
-        if (goal is null)
+        var result = await _goalService.DeleteGoalAsync(id, GetCurrentUserId());
+        if (!result)
         {
             return NotFound();
         }
 
-        _context.Goals.Remove(goal);
-        await _context.SaveChangesAsync();
-        SetStatus("Muc tieu da duoc xoa.", "success");
+        SetStatus("Mục tiêu đã được xóa.", "success");
         return RedirectToAction(nameof(Index));
-    }
-
-    private IQueryable<Goal> GetOwnedGoalsQuery()
-    {
-        var userId = GetCurrentUserId();
-        return _context.Goals.Where(item => item.UserID == userId);
     }
 
     private int GetCurrentUserId()
@@ -155,29 +118,19 @@ public class GoalsController : Controller
         return User.GetUserId() ?? throw new InvalidOperationException("Authenticated user id is missing.");
     }
 
-    private static string ResolveGoalStatus(GoalFormViewModel model)
-    {
-        if (model.TargetValue > 0 && model.CurrentValue >= model.TargetValue)
-        {
-            return "Completed";
-        }
-
-        return model.Status;
-    }
-
     private void ValidateGoalDates(GoalFormViewModel model)
     {
         if (model.EndDate < model.StartDate)
         {
-            ModelState.AddModelError(nameof(model.EndDate), "Ngay ket thuc phai sau ngay bat dau.");
+            ModelState.AddModelError(nameof(model.EndDate), "Ngày kết thúc phải sau ngày bắt đầu.");
         }
     }
 
     private void PopulateGoalSelections(string? goalType = null, string? status = null, string? unit = null)
     {
-        ViewBag.GoalTypes = new SelectList(new[] { "Giam can", "Tang co", "Tang suc ben", "Cai thien thanh tich" }, goalType);
+        ViewBag.GoalTypes = new SelectList(new[] { "Giảm cân", "Tăng cơ", "Tăng sức bền", "Cải thiện thành tích" }, goalType);
         ViewBag.GoalStatuses = new SelectList(new[] { "Active", "Paused", "Completed" }, status);
-        ViewBag.Units = new SelectList(new[] { "kg", "%", "km", "buoi", "cm" }, unit);
+        ViewBag.Units = new SelectList(new[] { "kg", "%", "km", "buổi", "cm" }, unit);
     }
 
     private void SetStatus(string message, string type)

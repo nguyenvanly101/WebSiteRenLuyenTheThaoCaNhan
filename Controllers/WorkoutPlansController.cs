@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
 using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
 using WebsiteRenLuyenTheThaoCaNhan.Models;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
@@ -12,35 +11,24 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
 [Authorize]
 public class WorkoutPlansController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IWorkoutPlanService _workoutPlanService;
+    private readonly IExerciseService _exerciseService;
 
-    public WorkoutPlansController(ApplicationDbContext context)
+    public WorkoutPlansController(IWorkoutPlanService workoutPlanService, IExerciseService exerciseService)
     {
-        _context = context;
+        _workoutPlanService = workoutPlanService;
+        _exerciseService = exerciseService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var userId = GetCurrentUserId();
-        var plans = await _context.WorkoutPlans
-            .Where(item => item.UserID == userId)
-            .Include(item => item.WorkoutDays)
-            .ThenInclude(day => day.WorkoutExercises)
-            .AsSplitQuery()
-            .OrderByDescending(item => item.CreatedAt)
-            .ToListAsync();
-
+        var plans = await _workoutPlanService.GetUserPlansAsync(GetCurrentUserId());
         return View(plans);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var plan = await GetOwnedPlanQuery()
-            .Include(item => item.WorkoutDays)
-            .ThenInclude(day => day.WorkoutExercises)
-            .ThenInclude(item => item.Exercise)
-            .FirstOrDefaultAsync(item => item.PlanID == id);
-
+        var plan = await _workoutPlanService.GetPlanDetailsAsync(id, GetCurrentUserId());
         if (plan is null)
         {
             return NotFound();
@@ -69,28 +57,21 @@ public class WorkoutPlansController : Controller
             return View(model);
         }
 
-        var plan = new WorkoutPlan
+        var (success, planId) = await _workoutPlanService.CreatePlanAsync(GetCurrentUserId(), model);
+        if (!success)
         {
-            UserID = GetCurrentUserId(),
-            PlanName = model.PlanName.Trim(),
-            Goal = model.Goal.Trim(),
-            Level = model.Level.Trim(),
-            Summary = model.Summary.Trim(),
-            Duration = model.Duration,
-            CreatedAt = DateTime.UtcNow
-        };
+            ModelState.AddModelError(string.Empty, "Lỗi tạo kế hoạch tập.");
+            return View(model);
+        }
 
-        _context.WorkoutPlans.Add(plan);
-        await _context.SaveChangesAsync();
-
-        SetStatus("Ke hoach tap da duoc tao.", "success");
-        return RedirectToAction(nameof(Details), new { id = plan.PlanID });
+        SetStatus("Kế hoạch tập đã được tạo.", "success");
+        return RedirectToAction(nameof(Details), new { id = planId });
     }
 
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var plan = await GetOwnedPlanQuery().FirstOrDefaultAsync(item => item.PlanID == id);
+        var plan = await _workoutPlanService.GetPlanByIdAsync(id, GetCurrentUserId());
         if (plan is null)
         {
             return NotFound();
@@ -110,36 +91,25 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, WorkoutPlanFormViewModel model)
     {
-        var plan = await GetOwnedPlanQuery().FirstOrDefaultAsync(item => item.PlanID == id);
-        if (plan is null)
-        {
-            return NotFound();
-        }
-
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        plan.PlanName = model.PlanName.Trim();
-        plan.Goal = model.Goal.Trim();
-        plan.Level = model.Level.Trim();
-        plan.Summary = model.Summary.Trim();
-        plan.Duration = model.Duration;
+        var result = await _workoutPlanService.UpdatePlanAsync(id, GetCurrentUserId(), model);
+        if (!result)
+        {
+            return NotFound();
+        }
 
-        await _context.SaveChangesAsync();
-        SetStatus("Ke hoach tap da duoc cap nhat.", "success");
+        SetStatus("Kế hoạch tập đã được cập nhật.", "success");
         return RedirectToAction(nameof(Details), new { id });
     }
 
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var plan = await GetOwnedPlanQuery()
-            .Include(item => item.WorkoutDays)
-            .ThenInclude(day => day.WorkoutExercises)
-            .FirstOrDefaultAsync(item => item.PlanID == id);
-
+        var plan = await _workoutPlanService.GetPlanDetailsAsync(id, GetCurrentUserId());
         if (plan is null)
         {
             return NotFound();
@@ -152,25 +122,20 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var plan = await GetOwnedPlanQuery().FirstOrDefaultAsync(item => item.PlanID == id);
-        if (plan is null)
+        var result = await _workoutPlanService.DeletePlanAsync(id, GetCurrentUserId());
+        if (!result)
         {
             return NotFound();
         }
 
-        _context.WorkoutPlans.Remove(plan);
-        await _context.SaveChangesAsync();
-        SetStatus("Ke hoach tap da duoc xoa.", "success");
+        SetStatus("Kế hoạch tập đã được xóa.", "success");
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     public async Task<IActionResult> AddDay(int planId)
     {
-        var plan = await GetOwnedPlanQuery()
-            .Include(item => item.WorkoutDays)
-            .FirstOrDefaultAsync(item => item.PlanID == planId);
-
+        var plan = await _workoutPlanService.GetPlanDetailsAsync(planId, GetCurrentUserId());
         if (plan is null)
         {
             return NotFound();
@@ -188,7 +153,7 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddDay(int planId, WorkoutDayFormViewModel model)
     {
-        var plan = await GetOwnedPlanQuery().FirstOrDefaultAsync(item => item.PlanID == planId);
+        var plan = await _workoutPlanService.GetPlanByIdAsync(planId, GetCurrentUserId());
         if (plan is null)
         {
             return NotFound();
@@ -196,9 +161,9 @@ public class WorkoutPlansController : Controller
 
         ViewBag.PlanName = plan.PlanName;
 
-        if (await _context.WorkoutDays.AnyAsync(item => item.PlanID == planId && item.DayNumber == model.DayNumber))
+        if (await _workoutPlanService.DayNumberExistsAsync(planId, model.DayNumber))
         {
-            ModelState.AddModelError(nameof(model.DayNumber), "Ngay tap nay da ton tai trong ke hoach.");
+            ModelState.AddModelError(nameof(model.DayNumber), "Ngày tập này đã tồn tại trong kế hoạch.");
         }
 
         if (!ModelState.IsValid)
@@ -206,26 +171,15 @@ public class WorkoutPlansController : Controller
             return View(model);
         }
 
-        _context.WorkoutDays.Add(new WorkoutDay
-        {
-            PlanID = planId,
-            DayNumber = model.DayNumber,
-            FocusArea = model.FocusArea.Trim(),
-            Note = model.Note.Trim()
-        });
-
-        await _context.SaveChangesAsync();
-        SetStatus("Da them ngay tap vao ke hoach.", "success");
+        await _workoutPlanService.AddDayAsync(planId, GetCurrentUserId(), model);
+        SetStatus("Đã thêm ngày tập vào kế hoạch.", "success");
         return RedirectToAction(nameof(Details), new { id = planId });
     }
 
     [HttpGet]
     public async Task<IActionResult> EditDay(int id)
     {
-        var day = await _context.WorkoutDays
-            .Include(item => item.WorkoutPlan)
-            .FirstOrDefaultAsync(item => item.DayID == id && item.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var day = await _workoutPlanService.GetDayByIdAsync(id, GetCurrentUserId());
         if (day is null)
         {
             return NotFound();
@@ -245,10 +199,7 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditDay(int id, WorkoutDayFormViewModel model)
     {
-        var day = await _context.WorkoutDays
-            .Include(item => item.WorkoutPlan)
-            .FirstOrDefaultAsync(item => item.DayID == id && item.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var day = await _workoutPlanService.GetDayByIdAsync(id, GetCurrentUserId());
         if (day is null)
         {
             return NotFound();
@@ -256,14 +207,9 @@ public class WorkoutPlansController : Controller
 
         ViewBag.PlanName = day.WorkoutPlan.PlanName;
 
-        var duplicate = await _context.WorkoutDays.AnyAsync(item =>
-            item.PlanID == day.PlanID &&
-            item.DayNumber == model.DayNumber &&
-            item.DayID != id);
-
-        if (duplicate)
+        if (await _workoutPlanService.DayNumberExistsAsync(day.PlanID, model.DayNumber, id))
         {
-            ModelState.AddModelError(nameof(model.DayNumber), "Ngay tap nay da ton tai trong ke hoach.");
+            ModelState.AddModelError(nameof(model.DayNumber), "Ngày tập này đã tồn tại trong kế hoạch.");
         }
 
         if (!ModelState.IsValid)
@@ -271,12 +217,8 @@ public class WorkoutPlansController : Controller
             return View(model);
         }
 
-        day.DayNumber = model.DayNumber;
-        day.FocusArea = model.FocusArea.Trim();
-        day.Note = model.Note.Trim();
-
-        await _context.SaveChangesAsync();
-        SetStatus("Ngay tap da duoc cap nhat.", "success");
+        await _workoutPlanService.EditDayAsync(id, GetCurrentUserId(), model);
+        SetStatus("Ngày tập đã được cập nhật.", "success");
         return RedirectToAction(nameof(Details), new { id = day.PlanID });
     }
 
@@ -284,43 +226,42 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteDay(int id)
     {
-        var day = await _context.WorkoutDays
-            .Include(item => item.WorkoutPlan)
-            .FirstOrDefaultAsync(item => item.DayID == id && item.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var day = await _workoutPlanService.GetDayByIdAsync(id, GetCurrentUserId());
         if (day is null)
         {
             return NotFound();
         }
 
         var planId = day.PlanID;
-        _context.WorkoutDays.Remove(day);
-        await _context.SaveChangesAsync();
-
-        SetStatus("Da xoa ngay tap.", "success");
+        await _workoutPlanService.DeleteDayAsync(id, GetCurrentUserId());
+        SetStatus("Đã xóa ngày tập.", "success");
         return RedirectToAction(nameof(Details), new { id = planId });
     }
 
     [HttpGet]
     public async Task<IActionResult> AddExercise(int dayId)
     {
-        var day = await _context.WorkoutDays
-            .Include(item => item.WorkoutPlan)
-            .ThenInclude(plan => plan.WorkoutDays)
-            .ThenInclude(item => item.WorkoutExercises)
-            .FirstOrDefaultAsync(item => item.DayID == dayId && item.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var day = await _workoutPlanService.GetDayByIdAsync(dayId, GetCurrentUserId());
         if (day is null)
         {
             return NotFound();
         }
 
+        // We need to reload detailed day info to find max order
+        var detailedPlan = await _workoutPlanService.GetPlanDetailsAsync(day.PlanID, GetCurrentUserId());
+        var detailedDay = detailedPlan?.WorkoutDays.FirstOrDefault(d => d.DayID == dayId);
+        int nextOrder = 1;
+        if (detailedDay != null && detailedDay.WorkoutExercises.Any())
+        {
+            nextOrder = detailedDay.WorkoutExercises.Max(item => item.DisplayOrder) + 1;
+        }
+
         await PopulateExerciseOptionsAsync();
-        ViewBag.DayLabel = $"Ngay {day.DayNumber} - {day.FocusArea}";
+        ViewBag.DayLabel = $"Ngày {day.DayNumber} - {day.FocusArea}";
         return View(new WorkoutExerciseFormViewModel
         {
             DayId = dayId,
-            DisplayOrder = day.WorkoutExercises.Count == 0 ? 1 : day.WorkoutExercises.Max(item => item.DisplayOrder) + 1
+            DisplayOrder = nextOrder
         });
     }
 
@@ -328,21 +269,19 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddExercise(int dayId, WorkoutExerciseFormViewModel model)
     {
-        var day = await _context.WorkoutDays
-            .Include(item => item.WorkoutPlan)
-            .FirstOrDefaultAsync(item => item.DayID == dayId && item.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var day = await _workoutPlanService.GetDayByIdAsync(dayId, GetCurrentUserId());
         if (day is null)
         {
             return NotFound();
         }
 
         await PopulateExerciseOptionsAsync(model.ExerciseID);
-        ViewBag.DayLabel = $"Ngay {day.DayNumber} - {day.FocusArea}";
+        ViewBag.DayLabel = $"Ngày {day.DayNumber} - {day.FocusArea}";
 
-        if (!await _context.Exercises.AnyAsync(item => item.ExerciseID == model.ExerciseID))
+        var exercise = await _exerciseService.GetByIdAsync(model.ExerciseID);
+        if (exercise is null)
         {
-            ModelState.AddModelError(nameof(model.ExerciseID), "Bai tap khong ton tai.");
+            ModelState.AddModelError(nameof(model.ExerciseID), "Bài tập không tồn tại.");
         }
 
         if (!ModelState.IsValid)
@@ -350,36 +289,22 @@ public class WorkoutPlansController : Controller
             return View(model);
         }
 
-        _context.WorkoutExercises.Add(new WorkoutExercise
-        {
-            DayID = dayId,
-            ExerciseID = model.ExerciseID,
-            Sets = model.Sets,
-            Reps = model.Reps,
-            RestTime = model.RestTime,
-            DisplayOrder = model.DisplayOrder
-        });
-
-        await _context.SaveChangesAsync();
-        SetStatus("Da them bai tap vao ngay tap.", "success");
+        await _workoutPlanService.AddExerciseAsync(dayId, GetCurrentUserId(), model);
+        SetStatus("Đã thêm bài tập vào ngày tập.", "success");
         return RedirectToAction(nameof(Details), new { id = day.PlanID });
     }
 
     [HttpGet]
     public async Task<IActionResult> EditExercise(int id)
     {
-        var item = await _context.WorkoutExercises
-            .Include(entry => entry.WorkoutDay)
-            .ThenInclude(day => day.WorkoutPlan)
-            .FirstOrDefaultAsync(entry => entry.ID == id && entry.WorkoutDay.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var item = await _workoutPlanService.GetWorkoutExerciseByIdAsync(id, GetCurrentUserId());
         if (item is null)
         {
             return NotFound();
         }
 
         await PopulateExerciseOptionsAsync(item.ExerciseID);
-        ViewBag.DayLabel = $"Ngay {item.WorkoutDay.DayNumber} - {item.WorkoutDay.FocusArea}";
+        ViewBag.DayLabel = $"Ngày {item.WorkoutDay.DayNumber} - {item.WorkoutDay.FocusArea}";
         return View(new WorkoutExerciseFormViewModel
         {
             DayId = item.DayID,
@@ -395,22 +320,19 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditExercise(int id, WorkoutExerciseFormViewModel model)
     {
-        var item = await _context.WorkoutExercises
-            .Include(entry => entry.WorkoutDay)
-            .ThenInclude(day => day.WorkoutPlan)
-            .FirstOrDefaultAsync(entry => entry.ID == id && entry.WorkoutDay.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var item = await _workoutPlanService.GetWorkoutExerciseByIdAsync(id, GetCurrentUserId());
         if (item is null)
         {
             return NotFound();
         }
 
         await PopulateExerciseOptionsAsync(model.ExerciseID);
-        ViewBag.DayLabel = $"Ngay {item.WorkoutDay.DayNumber} - {item.WorkoutDay.FocusArea}";
+        ViewBag.DayLabel = $"Ngày {item.WorkoutDay.DayNumber} - {item.WorkoutDay.FocusArea}";
 
-        if (!await _context.Exercises.AnyAsync(entry => entry.ExerciseID == model.ExerciseID))
+        var exercise = await _exerciseService.GetByIdAsync(model.ExerciseID);
+        if (exercise is null)
         {
-            ModelState.AddModelError(nameof(model.ExerciseID), "Bai tap khong ton tai.");
+            ModelState.AddModelError(nameof(model.ExerciseID), "Bài tập không tồn tại.");
         }
 
         if (!ModelState.IsValid)
@@ -418,14 +340,8 @@ public class WorkoutPlansController : Controller
             return View(model);
         }
 
-        item.ExerciseID = model.ExerciseID;
-        item.Sets = model.Sets;
-        item.Reps = model.Reps;
-        item.RestTime = model.RestTime;
-        item.DisplayOrder = model.DisplayOrder;
-
-        await _context.SaveChangesAsync();
-        SetStatus("Chi tiet bai tap da duoc cap nhat.", "success");
+        await _workoutPlanService.EditExerciseAsync(id, GetCurrentUserId(), model);
+        SetStatus("Chi tiết bài tập đã được cập nhật.", "success");
         return RedirectToAction(nameof(Details), new { id = item.WorkoutDay.PlanID });
     }
 
@@ -433,28 +349,16 @@ public class WorkoutPlansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteExercise(int id)
     {
-        var item = await _context.WorkoutExercises
-            .Include(entry => entry.WorkoutDay)
-            .ThenInclude(day => day.WorkoutPlan)
-            .FirstOrDefaultAsync(entry => entry.ID == id && entry.WorkoutDay.WorkoutPlan.UserID == GetCurrentUserId());
-
+        var item = await _workoutPlanService.GetWorkoutExerciseByIdAsync(id, GetCurrentUserId());
         if (item is null)
         {
             return NotFound();
         }
 
         var planId = item.WorkoutDay.PlanID;
-        _context.WorkoutExercises.Remove(item);
-        await _context.SaveChangesAsync();
-
-        SetStatus("Da xoa bai tap khoi ngay tap.", "success");
+        await _workoutPlanService.DeleteExerciseAsync(id, GetCurrentUserId());
+        SetStatus("Đã xóa bài tập khỏi ngày tập.", "success");
         return RedirectToAction(nameof(Details), new { id = planId });
-    }
-
-    private IQueryable<WorkoutPlan> GetOwnedPlanQuery()
-    {
-        var userId = GetCurrentUserId();
-        return _context.WorkoutPlans.Where(item => item.UserID == userId);
     }
 
     private int GetCurrentUserId()
@@ -464,7 +368,7 @@ public class WorkoutPlansController : Controller
 
     private async Task PopulateExerciseOptionsAsync(int? selectedId = null)
     {
-        var exercises = await _context.Exercises.OrderBy(item => item.Name).ToListAsync();
+        var exercises = await _exerciseService.GetAllExercisesAsync();
         ViewBag.Exercises = new SelectList(exercises, nameof(Exercise.ExerciseID), nameof(Exercise.Name), selectedId);
     }
 

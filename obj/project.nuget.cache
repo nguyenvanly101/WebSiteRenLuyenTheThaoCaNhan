@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "mq712Uuyct8=",
+  "dgSpecHash": "bA7HCob1JDE=",
   "success": true,
-  "projectFilePath": "D:\\GitHub\\WebSiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan.csproj",
+  "projectFilePath": "D:\\WebSiteRenLuyenTheThaoCaNhan\\WebsiteRenLuyenTheThaoCaNhan.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\vanly\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\vanly\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

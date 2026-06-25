@@ -1,36 +1,57 @@
 @model IEnumerable<WorkoutLog>
 @{
-    ViewData["Title"] = "Buoi Tap";
+    ViewData["Title"] = "Nhật ký tập";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">Workout Logs</p>
-        <h1>Ghi nhan moi buoi tap va xem lai lich su tap luyen.</h1>
-        <p class="lead">Moi buoi tap co the duoc bo sung chi tiet theo tung bai tap, so set, reps va muc ta.</p>
+        <p class="eyebrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="me-1"><rect x="5.5" y="5" width="13" height="14" rx="2"></rect><path d="M6.5 2h11M6.5 22h11M12 2v20M2 6.5h3.5M18.5 6.5H22M2 17.5h3.5M18.5 17.5H22"></path></svg> Nhật ký buổi tập</p>
+        <h1>Ghi nhận từng buổi tập và xem lại lịch sử tập luyện của bạn.</h1>
+        <p class="lead">Mỗi buổi tập có thể được bổ sung chi tiết theo từng bài tập, số hiệp, số lần lặp và mức tạ thực tế.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-action="Create">Tao workout log</a>
+        <a class="button" asp-action="Create">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Ghi buổi tập mới
+        </a>
     </div>
 </section>
 
 <section class="content-grid content-grid--2">
     @foreach (var log in Model)
     {
+        var energyClass = log.EnergyLevel switch
+        {
+            "High" => "pill",
+            "Low" => "pill pill--orange",
+            _ => "pill pill--purple"
+        };
+        
         <article class="surface-card js-reveal">
             <div class="card-head">
                 <div>
                     <p class="eyebrow">@log.WorkoutDate.ToString("dd/MM/yyyy")</p>
-                    <h2>@log.DurationMinutes phut</h2>
+                    <h2>Thời lượng: @log.DurationMinutes phút</h2>
                 </div>
-                <span class="pill">@log.EnergyLevel</span>
+                <span class="@energyClass">Thể trạng: @log.EnergyLevel</span>
             </div>
-            <p>@log.Note</p>
-            <div class="actions-row">
-                <span class="pill">@log.WorkoutLogDetails.Count chi tiet</span>
-                <a class="button button--ghost" asp-action="Details" asp-route-id="@log.LogID">Chi tiet</a>
-                <a class="button button--ghost" asp-action="Edit" asp-route-id="@log.LogID">Sua</a>
-                <a class="button button--ghost" asp-action="Delete" asp-route-id="@log.LogID">Xoa</a>
+            <p class="text-muted">@log.Note</p>
+            <div class="actions-row mt-3">
+                <span class="pill pill--purple">@log.WorkoutLogDetails.Count động tác</span>
+                <div class="actions-row">
+                    <a class="button button--ghost" asp-action="Details" asp-route-id="@log.LogID">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        Chi tiết
+                    </a>
+                    <a class="button button--ghost" asp-action="Edit" asp-route-id="@log.LogID">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        Sửa
+                    </a>
+                    <a class="button button--ghost" asp-action="Delete" asp-route-id="@log.LogID">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Xóa
+                    </a>
+                </div>
             </div>
         </article>
     }
@@ -38,7 +59,7 @@
     @if (!Model.Any())
     {
         <article class="surface-card">
-            <p class="empty-state">Chua co workout log nao.</p>
+            <p class="empty-state">Chưa có nhật ký buổi tập nào được ghi nhận.</p>
         </article>
     }
 </section>

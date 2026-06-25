@@ -1,25 +1,43 @@
 @model AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Quản trị";
+    ViewData["Title"] = "Quản trị hệ thống";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">Tổng quan quản trị</p>
-        <h1>Bảng điều khiển quản trị cho toàn bộ hệ thống.</h1>
-        <p class="lead">Theo dõi người dùng, bài tập, kế hoạch tập và nhật ký buổi tập từ một màn hình tổng hợp.</p>
+        <p class="eyebrow">Quản trị viên</p>
+        <h1>Bảng điều khiển quản trị</h1>
+        <p class="lead">Theo dõi người dùng, bài tập chung, kế hoạch luyện tập và các nhật ký buổi tập của toàn bộ hệ thống từ màn hình quản lý.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-controller="AdminExercises" asp-action="Index">Quản lý bài tập</a>
-        <a class="button button--ghost" asp-controller="AdminUsers" asp-action="Index">Quản lý người dùng</a>
+        <a class="button" asp-controller="AdminExercises" asp-action="Index">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><rect x="5.5" y="5" width="13" height="14" rx="2"></rect><path d="M6.5 2h11M6.5 22h11M12 2v20M2 6.5h3.5M18.5 6.5H22M2 17.5h3.5M18.5 17.5H22"></path></svg>
+            Quản lý bài tập
+        </a>
+        <a class="button button--ghost" asp-controller="AdminUsers" asp-action="Index">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Quản lý người dùng
+        </a>
     </div>
 </section>
 
 <section class="metric-grid">
-    <article class="metric-card"><span class="metric-card__label">Tổng người dùng</span><strong>@Model.TotalUsers</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Người dùng hoạt động</span><strong>@Model.ActiveUsers</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Bài tập</span><strong>@Model.TotalExercises</strong></article>
-    <article class="metric-card"><span class="metric-card__label">Kế hoạch / Nhật ký</span><strong>@Model.TotalPlans / @Model.TotalLogs</strong></article>
+    <article class="metric-card">
+        <span class="metric-card__label">Tổng người dùng</span>
+        <strong>@Model.TotalUsers</strong>
+    </article>
+    <article class="metric-card">
+        <span class="metric-card__label">Hoạt động hôm nay</span>
+        <strong>@Model.ActiveUsers</strong>
+    </article>
+    <article class="metric-card">
+        <span class="metric-card__label">Thư viện bài tập</span>
+        <strong>@Model.TotalExercises</strong>
+    </article>
+    <article class="metric-card">
+        <span class="metric-card__label">Plans / Logs hệ thống</span>
+        <strong>@Model.TotalPlans / @Model.TotalLogs</strong>
+    </article>
 </section>
 
 <section class="content-grid content-grid--2">
@@ -27,9 +45,12 @@
         <div class="card-head">
             <div>
                 <p class="eyebrow">Người dùng mới</p>
-                <h2>Tài khoản gần đây</h2>
+                <h2>Tài khoản mới đăng ký</h2>
             </div>
-            <a asp-controller="AdminUsers" asp-action="Index">Xem tất cả</a>
+            <a asp-controller="AdminUsers" asp-action="Index" style="display: inline-flex; align-items: center; gap: 4px;">
+                Xem tất cả 
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
         </div>
 
         @if (Model.RecentUsers.Any())
@@ -37,12 +58,21 @@
             <div class="stack-list">
                 @foreach (var user in Model.RecentUsers)
                 {
-                    <article class="stack-item">
-                        <div class="stack-item__head">
+                    <article class="stack-item" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
                             <strong>@user.FullName</strong>
-                            <span>@user.Role</span>
+                            <p style="font-size: 0.85rem; margin-top: 4px;">@user.Username | @user.Email</p>
                         </div>
-                        <p>@user.Username | @user.Email</p>
+                        <div>
+                            @if (user.Role == "Admin")
+                            {
+                                <span class="pill pill--purple">@user.Role</span>
+                            }
+                            else
+                            {
+                                <span class="pill">@user.Role</span>
+                            }
+                        </div>
                     </article>
                 }
             </div>
@@ -57,18 +87,24 @@
         <div class="card-head">
             <div>
                 <p class="eyebrow">Tác vụ quản trị</p>
-                <h2>Chức năng hiện có</h2>
+                <h2>Chức năng quản trị viên</h2>
             </div>
         </div>
 
         <div class="stack-list">
             <article class="stack-item">
-                <div class="stack-item__head"><strong>Quản lý bài tập</strong><span>CRUD</span></div>
-                <p>Tạo, sửa, xóa và theo dõi mức độ sử dụng của bài tập trong kế hoạch và buổi tập.</p>
+                <div class="stack-item__head">
+                    <strong>Thư viện bài tập chung</strong>
+                    <span class="pill pill--orange">Danh mục</span>
+                </div>
+                <p>Tạo mới bài tập, mô tả nhóm cơ tác động, thiết bị tập luyện cần thiết và cấu hình mức độ khó dễ để người dùng lựa chọn.</p>
             </article>
             <article class="stack-item">
-                <div class="stack-item__head"><strong>Quản lý người dùng</strong><span>Sửa / Xóa</span></div>
-                <p>Cập nhật thông tin, phân quyền, khóa mở tài khoản và xóa người dùng khi cần.</p>
+                <div class="stack-item__head">
+                    <strong>Quản lý thành viên</strong>
+                    <span class="pill pill--purple">Tài khoản</span>
+                </div>
+                <p>Xem toàn bộ danh sách thành viên, cập nhật thông tin cá nhân, phân quyền Quản trị (Admin) hoặc khóa/mở khóa đăng nhập tài khoản.</p>
             </article>
         </div>
     </article>

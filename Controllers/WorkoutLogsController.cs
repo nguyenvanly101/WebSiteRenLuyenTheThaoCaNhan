@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
 using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
 using WebsiteRenLuyenTheThaoCaNhan.Models;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
@@ -12,33 +11,38 @@ namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
 [Authorize]
 public class WorkoutLogsController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IWorkoutLogService _workoutLogService;
+    private readonly IExerciseService _exerciseService;
 
-    public WorkoutLogsController(ApplicationDbContext context)
+    public WorkoutLogsController(IWorkoutLogService workoutLogService, IExerciseService exerciseService)
     {
-        _context = context;
+        _workoutLogService = workoutLogService;
+        _exerciseService = exerciseService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var userId = GetCurrentUserId();
-        var logs = await _context.WorkoutLogs
-            .Where(item => item.UserID == userId)
-            .Include(item => item.WorkoutLogDetails)
-            .OrderByDescending(item => item.WorkoutDate)
-            .ToListAsync();
-
+        var logs = await _workoutLogService.GetUserLogsAsync(GetCurrentUserId());
         return View(logs);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> LogDay(int dayId)
+    {
+        var log = await _workoutLogService.LogDayAsync(dayId, GetCurrentUserId());
+        if (log is null)
+        {
+            return NotFound();
+        }
+
+        SetStatus("Đã ghi nhận buổi tập từ kế hoạch. Bạn có thể cập nhật chi tiết bên dưới.", "success");
+        return RedirectToAction(nameof(Details), new { id = log.LogID });
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var log = await _context.WorkoutLogs
-            .Where(item => item.UserID == GetCurrentUserId() && item.LogID == id)
-            .Include(item => item.WorkoutLogDetails)
-            .ThenInclude(item => item.Exercise)
-            .FirstOrDefaultAsync();
-
+        var log = await _workoutLogService.GetLogDetailsAsync(id, GetCurrentUserId());
         if (log is null)
         {
             return NotFound();
@@ -69,26 +73,21 @@ public class WorkoutLogsController : Controller
             return View(model);
         }
 
-        var log = new WorkoutLog
+        var (success, logId) = await _workoutLogService.CreateLogAsync(GetCurrentUserId(), model);
+        if (!success)
         {
-            UserID = GetCurrentUserId(),
-            WorkoutDate = model.WorkoutDate,
-            DurationMinutes = model.DurationMinutes,
-            EnergyLevel = model.EnergyLevel,
-            Note = model.Note.Trim()
-        };
+            ModelState.AddModelError(string.Empty, "Lỗi ghi nhận buổi tập.");
+            return View(model);
+        }
 
-        _context.WorkoutLogs.Add(log);
-        await _context.SaveChangesAsync();
-
-        SetStatus("Buoi tap da duoc ghi nhan.", "success");
-        return RedirectToAction(nameof(Details), new { id = log.LogID });
+        SetStatus("Buổi tập đã được ghi nhận.", "success");
+        return RedirectToAction(nameof(Details), new { id = logId });
     }
 
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var log = await GetOwnedLogsQuery().FirstOrDefaultAsync(item => item.LogID == id);
+        var log = await _workoutLogService.GetLogByIdAsync(id, GetCurrentUserId());
         if (log is null)
         {
             return NotFound();
@@ -108,12 +107,6 @@ public class WorkoutLogsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, WorkoutLogFormViewModel model)
     {
-        var log = await GetOwnedLogsQuery().FirstOrDefaultAsync(item => item.LogID == id);
-        if (log is null)
-        {
-            return NotFound();
-        }
-
         PopulateEnergyLevels(model.EnergyLevel);
 
         if (!ModelState.IsValid)
@@ -121,23 +114,20 @@ public class WorkoutLogsController : Controller
             return View(model);
         }
 
-        log.WorkoutDate = model.WorkoutDate;
-        log.DurationMinutes = model.DurationMinutes;
-        log.EnergyLevel = model.EnergyLevel;
-        log.Note = model.Note.Trim();
+        var result = await _workoutLogService.UpdateLogAsync(id, GetCurrentUserId(), model);
+        if (!result)
+        {
+            return NotFound();
+        }
 
-        await _context.SaveChangesAsync();
-        SetStatus("Buoi tap da duoc cap nhat.", "success");
+        SetStatus("Buổi tập đã được cập nhật.", "success");
         return RedirectToAction(nameof(Details), new { id });
     }
 
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var log = await GetOwnedLogsQuery()
-            .Include(item => item.WorkoutLogDetails)
-            .FirstOrDefaultAsync(item => item.LogID == id);
-
+        var log = await _workoutLogService.GetLogDetailsAsync(id, GetCurrentUserId());
         if (log is null)
         {
             return NotFound();
@@ -150,24 +140,20 @@ public class WorkoutLogsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var log = await GetOwnedLogsQuery().FirstOrDefaultAsync(item => item.LogID == id);
-        if (log is null)
+        var result = await _workoutLogService.DeleteLogAsync(id, GetCurrentUserId());
+        if (!result)
         {
             return NotFound();
         }
 
-        _context.WorkoutLogs.Remove(log);
-        await _context.SaveChangesAsync();
-        SetStatus("Buoi tap da duoc xoa.", "success");
+        SetStatus("Buổi tập đã được xóa.", "success");
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     public async Task<IActionResult> AddDetail(int logId)
     {
-        var log = await GetOwnedLogsQuery()
-            .Include(item => item.WorkoutLogDetails)
-            .FirstOrDefaultAsync(item => item.LogID == logId);
+        var log = await _workoutLogService.GetLogDetailsAsync(logId, GetCurrentUserId());
         if (log is null)
         {
             return NotFound();
@@ -178,9 +164,7 @@ public class WorkoutLogsController : Controller
         return View(new WorkoutLogDetailFormViewModel
         {
             LogId = logId,
-            SetNumber = log.WorkoutLogDetails.Count == 0
-                ? 1
-                : log.WorkoutLogDetails.Max(item => item.SetNumber) + 1
+            SetNumber = log.WorkoutLogDetails.Count == 0 ? 1 : log.WorkoutLogDetails.Max(item => item.SetNumber) + 1
         });
     }
 
@@ -188,7 +172,7 @@ public class WorkoutLogsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddDetail(int logId, WorkoutLogDetailFormViewModel model)
     {
-        var log = await GetOwnedLogsQuery().FirstOrDefaultAsync(item => item.LogID == logId);
+        var log = await _workoutLogService.GetLogByIdAsync(logId, GetCurrentUserId());
         if (log is null)
         {
             return NotFound();
@@ -197,9 +181,10 @@ public class WorkoutLogsController : Controller
         await PopulateExerciseOptionsAsync(model.ExerciseID);
         ViewBag.LogLabel = log.WorkoutDate.ToString("dd/MM/yyyy");
 
-        if (!await _context.Exercises.AnyAsync(item => item.ExerciseID == model.ExerciseID))
+        var exercise = await _exerciseService.GetByIdAsync(model.ExerciseID);
+        if (exercise is null)
         {
-            ModelState.AddModelError(nameof(model.ExerciseID), "Bai tap khong ton tai.");
+            ModelState.AddModelError(nameof(model.ExerciseID), "Bài tập không tồn tại.");
         }
 
         if (!ModelState.IsValid)
@@ -207,27 +192,15 @@ public class WorkoutLogsController : Controller
             return View(model);
         }
 
-        _context.WorkoutLogDetails.Add(new WorkoutLogDetail
-        {
-            LogID = logId,
-            ExerciseID = model.ExerciseID,
-            SetNumber = model.SetNumber,
-            Reps = model.Reps,
-            Weight = model.Weight
-        });
-
-        await _context.SaveChangesAsync();
-        SetStatus("Da them chi tiet buoi tap.", "success");
+        await _workoutLogService.AddDetailAsync(logId, GetCurrentUserId(), model);
+        SetStatus("Đã thêm chi tiết buổi tập.", "success");
         return RedirectToAction(nameof(Details), new { id = logId });
     }
 
     [HttpGet]
     public async Task<IActionResult> EditDetail(int id)
     {
-        var detail = await _context.WorkoutLogDetails
-            .Include(item => item.WorkoutLog)
-            .FirstOrDefaultAsync(item => item.ID == id && item.WorkoutLog.UserID == GetCurrentUserId());
-
+        var detail = await _workoutLogService.GetDetailByIdAsync(id, GetCurrentUserId());
         if (detail is null)
         {
             return NotFound();
@@ -250,10 +223,7 @@ public class WorkoutLogsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditDetail(int id, WorkoutLogDetailFormViewModel model)
     {
-        var detail = await _context.WorkoutLogDetails
-            .Include(item => item.WorkoutLog)
-            .FirstOrDefaultAsync(item => item.ID == id && item.WorkoutLog.UserID == GetCurrentUserId());
-
+        var detail = await _workoutLogService.GetDetailByIdAsync(id, GetCurrentUserId());
         if (detail is null)
         {
             return NotFound();
@@ -262,9 +232,10 @@ public class WorkoutLogsController : Controller
         await PopulateExerciseOptionsAsync(model.ExerciseID);
         ViewBag.LogLabel = detail.WorkoutLog.WorkoutDate.ToString("dd/MM/yyyy");
 
-        if (!await _context.Exercises.AnyAsync(item => item.ExerciseID == model.ExerciseID))
+        var exercise = await _exerciseService.GetByIdAsync(model.ExerciseID);
+        if (exercise is null)
         {
-            ModelState.AddModelError(nameof(model.ExerciseID), "Bai tap khong ton tai.");
+            ModelState.AddModelError(nameof(model.ExerciseID), "Bài tập không tồn tại.");
         }
 
         if (!ModelState.IsValid)
@@ -272,13 +243,8 @@ public class WorkoutLogsController : Controller
             return View(model);
         }
 
-        detail.ExerciseID = model.ExerciseID;
-        detail.SetNumber = model.SetNumber;
-        detail.Reps = model.Reps;
-        detail.Weight = model.Weight;
-
-        await _context.SaveChangesAsync();
-        SetStatus("Chi tiet buoi tap da duoc cap nhat.", "success");
+        await _workoutLogService.EditDetailAsync(id, GetCurrentUserId(), model);
+        SetStatus("Chi tiết buổi tập đã được cập nhật.", "success");
         return RedirectToAction(nameof(Details), new { id = detail.LogID });
     }
 
@@ -286,27 +252,16 @@ public class WorkoutLogsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteDetail(int id)
     {
-        var detail = await _context.WorkoutLogDetails
-            .Include(item => item.WorkoutLog)
-            .FirstOrDefaultAsync(item => item.ID == id && item.WorkoutLog.UserID == GetCurrentUserId());
-
+        var detail = await _workoutLogService.GetDetailByIdAsync(id, GetCurrentUserId());
         if (detail is null)
         {
             return NotFound();
         }
 
         var logId = detail.LogID;
-        _context.WorkoutLogDetails.Remove(detail);
-        await _context.SaveChangesAsync();
-
-        SetStatus("Da xoa chi tiet buoi tap.", "success");
+        await _workoutLogService.DeleteDetailAsync(id, GetCurrentUserId());
+        SetStatus("Đã xóa chi tiết buổi tập.", "success");
         return RedirectToAction(nameof(Details), new { id = logId });
-    }
-
-    private IQueryable<WorkoutLog> GetOwnedLogsQuery()
-    {
-        var userId = GetCurrentUserId();
-        return _context.WorkoutLogs.Where(item => item.UserID == userId);
     }
 
     private int GetCurrentUserId()
@@ -321,7 +276,7 @@ public class WorkoutLogsController : Controller
 
     private async Task PopulateExerciseOptionsAsync(int? selectedId = null)
     {
-        var exercises = await _context.Exercises.OrderBy(item => item.Name).ToListAsync();
+        var exercises = await _exerciseService.GetAllExercisesAsync();
         ViewBag.Exercises = new SelectList(exercises, nameof(Exercise.ExerciseID), nameof(Exercise.Name), selectedId);
     }
 

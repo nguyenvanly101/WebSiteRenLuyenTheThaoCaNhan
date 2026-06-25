@@ -1,16 +1,19 @@
 @model IEnumerable<Goal>
 @{
-    ViewData["Title"] = "Muc Tieu";
+    ViewData["Title"] = "Mục tiêu";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">Goals</p>
-        <h1>Dat muc tieu, cap nhat gia tri hien tai va theo doi muc do hoan thanh.</h1>
-        <p class="lead">Muc tieu trong he thong duoc lien ket truc tiep voi dashboard va trang progress.</p>
+        <p class="eyebrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="me-1"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Mục tiêu</p>
+        <h1>Đặt mục tiêu, cập nhật giá trị hiện tại và theo dõi mức độ hoàn thành.</h1>
+        <p class="lead">Mục tiêu trong hệ thống được liên kết trực tiếp với dashboard và trang tiến độ.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-action="Create">Tao muc tieu</a>
+        <a class="button" asp-action="Create">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Tạo mục tiêu
+        </a>
     </div>
 </section>
 
@@ -18,20 +21,35 @@
     @foreach (var goal in Model)
     {
         var percent = goal.TargetValue <= 0 ? 0 : (int)Math.Clamp((goal.CurrentValue / goal.TargetValue) * 100, 0, 100);
+        var statusClass = goal.Status switch
+        {
+            "Completed" => "pill",
+            "Paused" => "pill pill--orange",
+            _ => "pill pill--purple"
+        };
+        
         <article class="surface-card js-reveal">
             <div class="card-head">
                 <div>
                     <p class="eyebrow">@goal.GoalType</p>
                     <h2>@goal.Title</h2>
                 </div>
-                <span class="pill">@goal.Status</span>
+                <span class="@statusClass">@goal.Status</span>
             </div>
             <p>@goal.CurrentValue / @goal.TargetValue @goal.Unit</p>
             <div class="progress-meter mt-3"><div class="progress-meter__fill" style="width:@percent%"></div></div>
             <div class="actions-row mt-4">
-                <span class="pill">@goal.StartDate.ToString("dd/MM") - @goal.EndDate.ToString("dd/MM")</span>
-                <a class="button button--ghost" asp-action="Edit" asp-route-id="@goal.GoalID">Sua</a>
-                <a class="button button--ghost" asp-action="Delete" asp-route-id="@goal.GoalID">Xoa</a>
+                <span class="pill pill--purple">Từ @goal.StartDate.ToString("dd/MM/yyyy") đến @goal.EndDate.ToString("dd/MM/yyyy")</span>
+                <div class="actions-row">
+                    <a class="button button--ghost" asp-action="Edit" asp-route-id="@goal.GoalID">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        Sửa
+                    </a>
+                    <a class="button button--ghost" asp-action="Delete" asp-route-id="@goal.GoalID">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        Xóa
+                    </a>
+                </div>
             </div>
         </article>
     }
@@ -39,7 +57,7 @@
     @if (!Model.Any())
     {
         <article class="surface-card">
-            <p class="empty-state">Chua co muc tieu nao.</p>
+            <p class="empty-state">Chưa có mục tiêu nào được thiết lập.</p>
         </article>
     }
 </section>

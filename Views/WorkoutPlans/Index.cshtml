@@ -1,17 +1,20 @@
 @model IEnumerable<WorkoutPlan>
 @{
-    ViewData["Title"] = "Lich Tap";
+    ViewData["Title"] = "Lịch tập";
     ViewData["PageShellClass"] = "page-shell--wide";
 }
 
 <section class="page-hero workout-plan-hero">
     <div>
-        <p class="eyebrow">Workout Plans</p>
-        <h1>Quan ly toan bo lich tap cua ban theo tung ke hoach.</h1>
-        <p class="lead">Moi ke hoach co the duoc mo rong bang ngay tap va danh sach bai tap trong tung ngay.</p>
+        <p class="eyebrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Kế hoạch tập</p>
+        <h1>Quản lý toàn bộ lịch tập của bạn theo từng kế hoạch.</h1>
+        <p class="lead">Mỗi kế hoạch có thể được mở rộng bằng ngày tập và danh sách bài tập trong từng ngày.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-action="Create">Tao ke hoach</a>
+        <a class="button" asp-action="Create">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Tạo kế hoạch
+        </a>
     </div>
 </section>
 
@@ -22,7 +25,7 @@
         <article class="surface-card workout-plan-card js-reveal">
             <div class="card-head">
                 <div>
-                    <p class="eyebrow">@plan.Level</p>
+                    <p class="eyebrow">Cấp độ: @plan.Level</p>
                     <h2>@plan.PlanName</h2>
                 </div>
             </div>
@@ -34,9 +37,18 @@
                 <li><strong>Số bài tập:</strong> @exerciseCount bài tập</li>
             </ul>
             <div class="actions-row">
-                <a class="button button--ghost" asp-action="Details" asp-route-id="@plan.PlanID">Chi tiet</a>
-                <a class="button button--ghost" asp-action="Edit" asp-route-id="@plan.PlanID">Sua</a>
-                <a class="button button--ghost" asp-action="Delete" asp-route-id="@plan.PlanID">Xoa</a>
+                <a class="button button--ghost" asp-action="Details" asp-route-id="@plan.PlanID">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    Chi tiết
+                </a>
+                <a class="button button--ghost" asp-action="Edit" asp-route-id="@plan.PlanID">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    Sửa
+                </a>
+                <a class="button button--ghost" asp-action="Delete" asp-route-id="@plan.PlanID">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    Xóa
+                </a>
             </div>
         </article>
     }
@@ -44,7 +56,7 @@
     @if (!Model.Any())
     {
         <article class="surface-card">
-            <p class="empty-state">Chua co ke hoach nao. Tao ke hoach moi de bat dau hanh trinh tap luyen.</p>
+            <p class="empty-state">Chưa có kế hoạch nào. Tạo kế hoạch mới để bắt đầu hành trình tập luyện.</p>
         </article>
     }
 </section>

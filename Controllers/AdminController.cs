@@ -1,34 +1,23 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebsiteRenLuyenTheThaoCaNhan.Data;
 using WebsiteRenLuyenTheThaoCaNhan.Infrastructure;
-using WebsiteRenLuyenTheThaoCaNhan.ViewModels;
+using WebsiteRenLuyenTheThaoCaNhan.Services;
 
 namespace WebsiteRenLuyenTheThaoCaNhan.Controllers;
 
 [Authorize(Roles = AppRoles.Admin)]
 public class AdminController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IAdminService _adminService;
 
-    public AdminController(ApplicationDbContext context)
+    public AdminController(IAdminService adminService)
     {
-        _context = context;
+        _adminService = adminService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var model = new AdminDashboardViewModel
-        {
-            TotalUsers = await _context.Users.CountAsync(),
-            ActiveUsers = await _context.Users.CountAsync(item => item.IsActive),
-            TotalExercises = await _context.Exercises.CountAsync(),
-            TotalPlans = await _context.WorkoutPlans.CountAsync(),
-            TotalLogs = await _context.WorkoutLogs.CountAsync(),
-            RecentUsers = await _context.Users.OrderByDescending(item => item.CreatedAt).Take(5).ToListAsync()
-        };
-
+        var model = await _adminService.GetAdminDashboardStatsAsync();
         return View(model);
     }
 }

@@ -1,16 +1,19 @@
-﻿@model IEnumerable<AdminExerciseListItemViewModel>
+@model IEnumerable<AdminExerciseListItemViewModel>
 @{
-    ViewData["Title"] = "Quan Ly Bai Tap";
+    ViewData["Title"] = "Quản lý bài tập";
 }
 
 <section class="page-hero">
     <div>
-        <p class="eyebrow">EXERCISE LIBRARY</p>
-        <h1>Quản lý danh mục bài tập dành cho hệ thống chung.</h1>
-        <p class="lead">Cập nhật  , thêm , sửa , xóa bài tập.</p>
+        <p class="eyebrow">Thư viện bài tập</p>
+        <h1>Quản lý danh mục bài tập hệ thống</h1>
+        <p class="lead">Cập nhật thông tin chi tiết, thêm mới bài tập mới hoặc điều chỉnh danh sách bài tập chung.</p>
     </div>
     <div class="hero-actions">
-        <a class="button" asp-action="Create">Thêm bài tập</a>
+        <a class="button" asp-action="Create">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Thêm bài tập mới
+        </a>
     </div>
 </section>
 
@@ -22,7 +25,7 @@
                     <th>Bài tập</th>
                     <th>Nhóm cơ</th>
                     <th>Độ khó</th>
-                    <th>Sử dụng trong Plan/th>
+                    <th>Sử dụng trong Plan</th>
                     <th>Sử dụng trong Log</th>
                     <th></th>
                 </tr>
@@ -33,16 +36,39 @@
                     <tr>
                         <td>
                             <strong>@item.Exercise.Name</strong>
-                            <div>@item.Exercise.Equipment</div>
+                            <div style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;">Thiết bị: @item.Exercise.Equipment</div>
                         </td>
                         <td>@item.Exercise.MuscleGroup</td>
-                        <td>@item.Exercise.Difficulty</td>
-                        <td>@item.PlanUsageCount</td>
-                        <td>@item.LogUsageCount</td>
+                        <td>
+                            @if (item.Exercise.Difficulty?.ToLower() == "khó" || item.Exercise.Difficulty?.ToLower() == "hard" || item.Exercise.Difficulty?.ToLower() == "advanced")
+                            {
+                                <span class="pill pill--purple">@item.Exercise.Difficulty</span>
+                            }
+                            else if (item.Exercise.Difficulty?.ToLower() == "trung bình" || item.Exercise.Difficulty?.ToLower() == "medium" || item.Exercise.Difficulty?.ToLower() == "intermediate")
+                            {
+                                <span class="pill pill--orange">@item.Exercise.Difficulty</span>
+                            }
+                            else
+                            {
+                                <span class="pill">@item.Exercise.Difficulty</span>
+                            }
+                        </td>
+                        <td>
+                            <span style="font-weight: 600;">@item.PlanUsageCount</span> kế hoạch
+                        </td>
+                        <td>
+                            <span style="font-weight: 600;">@item.LogUsageCount</span> buổi tập
+                        </td>
                         <td>
                             <div class="actions-row">
-                                <a asp-action="Edit" asp-route-id="@item.Exercise.ExerciseID">Sua</a>
-                                <a asp-action="Delete" asp-route-id="@item.Exercise.ExerciseID">Xoa</a>
+                                <a class="button button--ghost" style="min-height: 32px; padding: 0 12px; font-size: 0.8rem;" asp-action="Edit" asp-route-id="@item.Exercise.ExerciseID">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    Sửa
+                                </a>
+                                <a class="button button--ghost" style="min-height: 32px; padding: 0 12px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #fca5a5;" asp-action="Delete" asp-route-id="@item.Exercise.ExerciseID">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    Xóa
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -53,6 +79,6 @@
 
     @if (!Model.Any())
     {
-        <p class="empty-state mt-4">Chua co bai tap nao trong he thong.</p>
+        <p class="empty-state mt-4">Chưa có bài tập nào trong hệ thống.</p>
     }
 </section>
